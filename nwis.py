@@ -45,7 +45,7 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
     nwis = {}
     nwis['dnlocal'] = np.array([parser.parse(v[i]['dateTime']) for i in range(len(v))])
     # Convert local time to UTC
-    nwis['dn'] = [x.astimezone(pytz.utc) for x in nwis['dnlocal']]
+    nwis['dn'] = np.array([x.astimezone(pytz.utc) for x in nwis['dnlocal']])
     nwis['sitename'] = payload['value']['timeSeries'][0]['sourceInfo']['siteName']
     nwis['sitecode'] = payload['value']['timeSeries'][0]['sourceInfo']['siteCode'][0]['value']
     nwis['val'] = np.array([float(v[i]['value']) for i in range(len(v))])
