@@ -1,29 +1,44 @@
 import requests
+import numpy as np
+import datetime as dt
+import pytz
+from dateutil import parser
 
-def get_coops_hourly():
-    url = 'http://tidesandcurrents.noaa.gov//api/datagetter?product=hourly_height&application=NOS.COOPS.TAC.WL&begin_date=' \
-    + str(20160801) \
+def get_coops_data(station, start_date, end_date, product='hourly_height', units='metric'):
+    """
+    Other options for product include 'water_level', 'hourly_height'
+    units can be 'english' or 'metric'
+    """
+    url = 'http://tidesandcurrents.noaa.gov/api/datagetter?product=' \
+    + product \
+    + '&application=NOS.COOPS.TAC.WL&begin_date=' \
+    + str(start_date) \
     + '&end_date=' \
-    + str(20170201) \
+    + str(end_date) \
     + '&datum=MLLW&station=' \
-    + str(8739803) \
-    + '&time_zone=GMT&units=english&format=json'
+    + str(station) \
+    + '&time_zone=GMT&units=' \
+    + units \
+    + '&format=json'
 
     payload = requests.get(url).json()
 
-    return payload
+    if 'error' in payload.keys():
+        raise ValueError('Error in returning dataset. Time requested too long?')
 
-payload = get_coops_hourly()
-# %%
+    t = []
+    v = []
+    for n in range(len(payload['data'])):
+        t.append(pytz.utc.localize(parser.parse(payload['data'][n]['t'])))
+        try:
+            v.append(float(payload['data'][n]['v']))
+        except:
+            v.append(np.nan)
+    t = np.array(t)
+    v = np.array(v)
 
-print len(payload['data'])
-import numpy as np
-import datetime as dt
-payload['data'][n]['t']
+    n = {}
+    n['dn'] = t
+    n['v'] = v
 
-len(payload['data'])
-
-
-t = []
-for n in range(len(payload['data'])):
-    t.append(dt.datetime(payload['data'][n]['t']))
+    return n
