@@ -2,18 +2,32 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def boxoff():
+    """
+    A Matlab-like boxoff to remove top & right border of plots
+    """
     plt.gca().yaxis.set_ticks_position('left')
     plt.gca().xaxis.set_ticks_position('bottom')
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
 
+def twinboxoff():
+    """
+    A Matlab-like boxoff for twinx plots
+    """
+    plt.gca().spines['top'].set_visible(False)
+
 def find_nearest(array,value):
-    # http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+    """
+    Find nearest value in numpy array
+    http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+    """
     idx = (np.abs(array-value)).argmin()
     return idx
 
 def middles(edges):
-    # make middles vector from edges vector, for use with binit
+    """
+    Make middles vector from edges vector
+    """
     diffs = np.median(np.diff(edges));
     edgestart = edges[0] + diffs/2.;
     edgeend = edges[-1] - diffs/2.;
@@ -31,3 +45,6 @@ def set_fontsize(fig,fontsize):
 
     for textobj in fig.findobj(match=match):
         textobj.set_fontsize(fontsize)
+
+def nextcolor():
+    next(plt.gca()._get_lines.prop_cycler)['color']
