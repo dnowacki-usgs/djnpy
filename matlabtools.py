@@ -12,6 +12,9 @@ def loadmat(filename):
     data = spio.loadmat(filename, struct_as_record=False, squeeze_me=True)
     return _check_keys(data)
 
+def savemat(filename, mdict):
+    spio.savemat(filename, mdict)
+
 def _check_keys(d):
     '''
     checks if entries in dictionary are mat-objects. If yes
