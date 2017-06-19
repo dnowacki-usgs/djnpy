@@ -54,7 +54,7 @@ def get_coops_data(station, start_date, end_date, product='hourly_height', units
         d = payload['data']
     elif product == 'predictions':
         d = payload['predictions']
-        
+
     for n in range(len(d)):
         t.append(pytz.utc.localize(parser.parse(d[n]['t'])))
         try:

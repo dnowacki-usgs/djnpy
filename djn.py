@@ -47,4 +47,7 @@ def set_fontsize(fig,fontsize):
         textobj.set_fontsize(fontsize)
 
 def nextcolor():
+    """
+    Get the next color in the default matplotlib color order
+    """
     next(plt.gca()._get_lines.prop_cycler)['color']
