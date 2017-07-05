@@ -16,6 +16,11 @@ def twinboxoff():
     """
     plt.gca().spines['top'].set_visible(False)
 
+def thinspines(lw=0.5):
+    for axis in ['top','bottom','left','right']:
+      plt.gca().spines[axis].set_linewidth(lw)
+      plt.gca().tick_params(width=lw)
+
 def find_nearest(array,value):
     """
     Find nearest value in numpy array
