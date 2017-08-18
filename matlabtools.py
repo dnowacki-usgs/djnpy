@@ -45,3 +45,10 @@ def matlab2datetime(matlab_datenum):
     day = dt.datetime.fromordinal(int(matlab_datenum))
     dayfrac = dt.timedelta(days=matlab_datenum%1) - dt.timedelta(days = 366)
     return utc.localize(day + dayfrac)
+
+def datetime2matlab(dtime):
+    dtime = dtime.replace(tzinfo=None) # need to get rid of tzinfo since not supported by matlab
+    mdn = dtime + dt.timedelta(days = 366)
+    frac_seconds = (dtime-dt.datetime(dtime.year,dtime.month,dtime.day,0,0,0)).seconds / (24.0 * 60.0 * 60.0)
+    frac_microseconds = dtime.microsecond / (24.0 * 60.0 * 60.0 * 1000000.0)
+    return mdn.toordinal() + frac_seconds + frac_microseconds
