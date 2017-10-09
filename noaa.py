@@ -65,7 +65,7 @@ def get_coops_data(station, start_date, end_date, product='hourly_height', units
     v = np.array(v)
 
     n = {}
-    n['dn'] = t
+    n['time'] = t
     n['v'] = v
 
     return n
