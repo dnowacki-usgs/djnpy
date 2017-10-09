@@ -1,5 +1,28 @@
+from __future__ import division
 import matplotlib.pyplot as plt
 import numpy as np
+
+def uv2sd(u, v):
+    """Convert east, north components to speed and direction"""
+
+    spds = np.full_like(u.values, np.nan)
+    # dirs = np.full_like(u.values, np.nan)
+
+    # print(spds)
+    # print(dirs)
+
+    spds = np.sqrt(u.values**2 + v.values**2)
+    dirs = np.rad2deg(np.arctan(u/v))
+    dirs[np.logical_and(u == 0, v > 0)] = 0
+    # dirs[np.logical_and(u > 0, v > 0)] = np.rad2deg(np.arctan(u[np.logical_and(u > 0, v > 0)] / v[np.logical_and(u > 0, v > 0)]))
+    dirs[np.logical_and(u > 0, v == 0)] = 90
+    dirs[np.logical_and(u > 0, v < 0)] = dirs[np.logical_and(u > 0, v < 0)] + 180
+    dirs[np.logical_and(u == 0 , v < 0)] = 180
+    dirs[np.logical_and(u < 0, v < 0)] = dirs[np.logical_and(u < 0, v < 0)] + 180
+    dirs[np.logical_and(u < 0, v == 0)] = 270
+    dirs[np.logical_and(u < 0, v > 0)] = dirs[np.logical_and(u < 0, v > 0)] + 360
+
+    return spds, dirs
 
 def boxoff():
     """
