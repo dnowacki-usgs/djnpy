@@ -4,7 +4,13 @@ import datetime as dt
 import pytz
 from dateutil import parser
 
-def get_coops_data(station, start_date, end_date, product='hourly_height', units='metric'):
+def get_coops_data(station,
+                   start_date,
+                   end_date,
+                   product='hourly_height',
+                   units='metric',
+                   datum='MLLW',
+                   time_zone='GMT'):
     """
     units can be 'english' or 'metric'
 
@@ -37,9 +43,13 @@ def get_coops_data(station, start_date, end_date, product='hourly_height', units
     + str(start_date) \
     + '&end_date=' \
     + str(end_date) \
-    + '&datum=MLLW&station=' \
+    + '&datum=' \
+    + datum \
+    + '&station=' \
     + str(station) \
-    + '&time_zone=GMT&units=' \
+    + '&time_zone=' \
+    + time_zone \
+    + '&units=' \
     + units \
     + '&format=json'
 
