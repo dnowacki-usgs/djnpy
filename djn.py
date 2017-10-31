@@ -5,13 +5,16 @@ import numpy as np
 def uv2sd(u, v):
     """Convert east, north components to speed and direction"""
 
-    spds = np.full_like(u.values, np.nan)
+    u = np.asarray(u)
+    v = np.asarray(v)
+
+    spds = np.full_like(u, np.nan)
     # dirs = np.full_like(u.values, np.nan)
 
     # print(spds)
     # print(dirs)
 
-    spds = np.sqrt(u.values**2 + v.values**2)
+    spds = np.sqrt(u**2 + v**2)
     dirs = np.rad2deg(np.arctan(u/v))
     dirs[np.logical_and(u == 0, v > 0)] = 0
     # dirs[np.logical_and(u > 0, v > 0)] = np.rad2deg(np.arctan(u[np.logical_and(u > 0, v > 0)] / v[np.logical_and(u > 0, v > 0)]))
@@ -23,6 +26,18 @@ def uv2sd(u, v):
     dirs[np.logical_and(u < 0, v > 0)] = dirs[np.logical_and(u < 0, v > 0)] + 360
 
     return spds, dirs
+
+def sd2uv(s, d):
+    """
+    Convert speed and direction to u, v components
+    """
+
+    s = np.asarray(s)
+    d = np.asarray(d)
+
+    u = s * np.sin(d * np.pi / 180)
+    v = s * np.cos(d * np.pi / 180)
+    return u, v
 
 def boxoff():
     """
