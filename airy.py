@@ -1,12 +1,14 @@
 # Implement functions for linear wave theory, migrated from Matlab codes in
 # Dropbox/matlab/+airy
 
+from __future__ import division
+import wavenumber as wn
+import numpy as np
+
 def celerity(omega, d):
     """
     c = celerity(omega, d)
     """
-
-    import wavenumber as wn
 
     k = wn.qkfs(omega, d)
     c = omega / k
@@ -30,9 +32,6 @@ def groupvel(omega, d):
     # omega: 2*pi/T
     # d: still water depth
     """
-
-    import wavenumber  as wn
-    import numpy as np
 
     k = wn.qkfs(omega, d)
 

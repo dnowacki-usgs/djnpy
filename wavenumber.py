@@ -1,22 +1,21 @@
-
+from __future__ import division
+import numpy as np
 
 def wavenumber(sigma, h):
-    """Compute wavenumber from sigma and h
-k = wavenumber(sigma, h)
-%k is the matrix of same size as sigma and h containing the calculated wave numbers
-%
-%sigma is the wave frequencies in rad/s
-%h is the water depth
-%
-%sigma and h must be scalars,vectors or matricies of the same dimensions
-%
+    """
+    Compute wavenumber from sigma and h
+    k = wavenumber(sigma, h)
+    k is the matrix of same size as sigma and h containing the calculated wave numbers
 
-%modified from R.Dalrymple's java code
-%
+    sigma is the wave frequencies in rad/s
+    h is the water depth
 
-D. Nowacki rewritten in Python March 2015
-"""
-    import numpy as np
+    sigma and h must be scalars,vectors or matricies of the same dimensions
+
+    modified from R.Dalrymple's java code
+
+    D. Nowacki rewritten in Python March 2015
+    """
 
     g = 9.81
 
@@ -36,16 +35,15 @@ D. Nowacki rewritten in Python March 2015
         da1 = -f1/f2
         a1 = a1 + da1
 
-    k = a1/h
-
-    return k
+    return a1/h
 
 def qkfs(omega, h):
+    """
+    Modified from Wiberg & Sherwood 2009; only does 3 iterations.
+    Returns only k, not kh
 
-    '''Modified from Wiberg & Sherwood 2009; only does 3 iterations.
-    Returns only k, not kh'''
-
-    import numpy as np
+    k = qkfs(omega, h)
+    """
 
     g = 9.81
     x = omega**2 * h / g
@@ -57,6 +55,5 @@ def qkfs(omega, h):
     y = y - ( (y*t-x) / (t + y * (1-t**2)))
     t = np.tanh(y)
     y = y - ( (y*t-x) / (t + y * (1-t**2)))
-    k = y/h
 
-    return k
+    return y/h
