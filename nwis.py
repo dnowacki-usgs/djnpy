@@ -1,3 +1,9 @@
+from __future__ import print_function, division
+import requests
+import numpy as np
+from dateutil import parser
+import pytz
+
 
 def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, freq='iv'):
     '''Obtain NWIS data via JSON.
@@ -28,11 +34,6 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
     dnowacki@usgs.gov 2016-07
     '''
 
-    import requests
-    import numpy as np
-    from dateutil import parser
-    import pytz
-
     if period is None and start is None and end is None:
         period='P1D'
 
@@ -48,6 +49,11 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
     nwis['dn'] = np.array([x.astimezone(pytz.utc) for x in nwis['dnlocal']])
     nwis['sitename'] = payload['value']['timeSeries'][0]['sourceInfo']['siteName']
     nwis['sitecode'] = payload['value']['timeSeries'][0]['sourceInfo']['siteCode'][0]['value']
+    nwis['latitude'] = payload['value']['timeSeries'][0]['sourceInfo']['geoLocation']['geogLocation']['latitude']
+    nwis['longitude'] = payload['value']['timeSeries'][0]['sourceInfo']['geoLocation']['geogLocation']['longitude']
+    nwis['srs'] = payload['value']['timeSeries'][0]['sourceInfo']['geoLocation']['geogLocation']['srs']
+    nwis['unit'] = payload['value']['timeSeries'][0]['variable']['unit']['unitCode']
+    nwis['variableName'] = payload['value']['timeSeries'][0]['variable']['variableName']
     nwis['val'] = np.array([float(v[i]['value']) for i in range(len(v))])
     nwis['val'][nwis['val'] == payload['value']['timeSeries'][0]['variable']['noDataValue']] = np.nan
 
