@@ -1,6 +1,8 @@
-from __future__ import division
+from __future__ import print_function, division
 import matplotlib.pyplot as plt
 import numpy as np
+from plotly import offline as py
+import plotly.tools as tls
 
 def uv2sd(u, v):
     """Convert east, north components to speed and direction"""
@@ -77,6 +79,9 @@ def middles(edges):
     mid = np.arange(edgestart, edgeend + diffs, diffs)
 
     return mid
+
+def show():
+    py.iplot(tls.mpl_to_plotly(plt.gcf()))
 
 def set_fontsize(fig,fontsize):
     """
