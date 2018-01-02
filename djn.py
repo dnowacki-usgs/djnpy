@@ -99,3 +99,57 @@ def nextcolor():
     Get the next color in the default matplotlib color order
     """
     next(plt.gca()._get_lines.prop_cycler)['color']
+
+def siegel(x, y):
+    """
+    Compute robust regression using repeated medians, following Siegel (1982)
+
+    Inputs:
+    x, y: x and y locations of points
+
+    Outputs:
+    slope, intercept: slope and intercept of robust regression line
+
+    ANDREW F. SIEGEL; Robust regression using repeated medians, Biometrika,
+    Volume 69, Issue 1, 1 April 1982, Pages 242–244,
+    https://doi.org/10.1093/biomet/69.1.242
+
+    Based on 2-clause BSD licensed code by Vlad Niculae, available at
+    http://codegists.com/snippet/python/siegelpy_vene_python
+    """
+
+    x = np.asarray(x)
+    y = np.asarray(y)
+    deltax = x[:, np.newaxis] - x
+    deltay = y[:, np.newaxis] - y
+
+    slopes = deltay / deltax
+
+    slope = np.median(np.nanmedian(slopes, axis=0))
+    intercept = np.median(y - slope * x)
+
+    # compute residuals for non-parametric prediction intervals
+    if np.shape(x)[0] > 6:
+        pred = slope * x + intercept
+
+        yhat = np.sort(y - pred)
+
+        a=1-.6826
+        eL = (np.shape(x)[0] + 1) * a / 2
+        eU = (np.shape(x)[0] + 1) * (1 - a/2)
+
+        L1 = np.floor(eL).astype(int) - 1
+        L2 = L1 + 1
+
+        U1 = np.ceil(eU).astype(int) - 1
+        U2 = U1 - 1
+
+        rL = yhat[L1] + (eL - L1) * (yhat[L2] - yhat[L1])
+        rU = yhat[U1] - (eU - U1) * (yhat[U2] - yhat[U1])
+    else:
+        rL = np.nan
+        rU = np.nan
+
+    print(rL, rU)
+
+    return slope, intercept
