@@ -94,11 +94,12 @@ def set_fontsize(fig,fontsize):
     for textobj in fig.findobj(match=match):
         textobj.set_fontsize(fontsize)
 
-def nextcolor():
+def nextcolor(n=1):
     """
     Get the next color in the default matplotlib color order
     """
-    next(plt.gca()._get_lines.prop_cycler)['color']
+    for x in range(n):
+        next(plt.gca()._get_lines.prop_cycler)['color']
 
 def siegel(x, y):
     """
