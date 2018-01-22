@@ -81,6 +81,10 @@ def middles(edges):
     return mid
 
 def show():
+    """
+    Easy way to make an mpl plot into a plotly plot.
+    Call djn.show() instead of plt.show()
+    """
     py.iplot(tls.mpl_to_plotly(plt.gcf()))
 
 def set_fontsize(fig,fontsize):
@@ -135,28 +139,28 @@ def siegel(x, y):
     slope = np.median(np.nanmedian(slopes, axis=0))
     intercept = np.median(y - slope * x)
 
-    # compute residuals for non-parametric prediction intervals
-    if np.shape(x)[0] > 6:
-        pred = slope * x + intercept
-
-        yhat = np.sort(y - pred)
-
-        a=1-.6826
-        eL = (np.shape(x)[0] + 1) * a / 2
-        eU = (np.shape(x)[0] + 1) * (1 - a/2)
-
-        L1 = np.floor(eL).astype(int) - 1
-        L2 = L1 + 1
-
-        U1 = np.ceil(eU).astype(int) - 1
-        U2 = U1 - 1
-
-        rL = yhat[L1] + (eL - L1) * (yhat[L2] - yhat[L1])
-        rU = yhat[U1] - (eU - U1) * (yhat[U2] - yhat[U1])
-    else:
-        rL = np.nan
-        rU = np.nan
-
-    print(rL, rU)
+    # # compute residuals for non-parametric prediction intervals
+    # if np.shape(x)[0] > 6:
+    #     pred = slope * x + intercept
+    #
+    #     yhat = np.sort(y - pred)
+    #
+    #     a=1-.6826
+    #     eL = (np.shape(x)[0] + 1) * a / 2
+    #     eU = (np.shape(x)[0] + 1) * (1 - a/2)
+    #
+    #     L1 = np.floor(eL).astype(int) - 1
+    #     L2 = L1 + 1
+    #
+    #     U1 = np.ceil(eU).astype(int) - 1
+    #     U2 = U1 - 1
+    #
+    #     rL = yhat[L1] + (eL - L1) * (yhat[L2] - yhat[L1])
+    #     rU = yhat[U1] - (eU - U1) * (yhat[U2] - yhat[U1])
+    # else:
+    #     rL = np.nan
+    #     rU = np.nan
+    #
+    # print(rL, rU)
 
     return slope, intercept
