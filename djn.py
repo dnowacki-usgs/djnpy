@@ -94,6 +94,12 @@ def set_fontsize(fig,fontsize):
     for textobj in fig.findobj(match=match):
         textobj.set_fontsize(fontsize)
 
+def getcols():
+    """
+    Get the default color order
+    """
+    return plt.rcParams['axes.prop_cycle'].by_key()['color']
+
 def nextcolor(n=1):
     """
     Get the next color in the default matplotlib color order
