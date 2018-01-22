@@ -71,11 +71,9 @@ def get_coops_data(station,
             v.append(float(d[n]['v']))
         except:
             v.append(np.nan)
-    t = np.array(t)
-    v = np.array(v)
 
     n = {}
-    n['time'] = t
-    n['v'] = v
+    n['time'] = np.array(t)
+    n['v'] = np.array(v)
 
     return n
