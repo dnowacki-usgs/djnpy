@@ -1,4 +1,6 @@
 import scipy.io as spio
+import datetime as dt
+import pytz
 
 def loadmat(filename):
     '''
@@ -38,13 +40,20 @@ def _todict(matobj):
             d[strg] = elem
     return d
 
-def matlab2datetime(matlab_datenum):
-    import datetime as dt
-    import pytz
+def matlab2datetime(matlab_datenum, tz=True):
+    '''
+    Convert matlab datenum to python datetime, optionally with UTC timezone applied
+    '''
     utc = pytz.timezone('UTC')
     day = dt.datetime.fromordinal(int(matlab_datenum))
     dayfrac = dt.timedelta(days=matlab_datenum%1) - dt.timedelta(days = 366)
-    return utc.localize(day + dayfrac)
+
+    if not tz:
+        return day + dayfrac
+    else:
+        return utc.localize(day + dayfrac)
+
+
 
 def datetime2matlab(dtime):
     dtime = dtime.replace(tzinfo=None) # need to get rid of tzinfo since not supported by matlab
