@@ -164,3 +164,68 @@ def siegel(x, y):
     # print(rL, rU)
 
     return slope, intercept
+
+def princax(w):
+    """
+     PRINCAX Principal axis, rotation angle, principal ellipse
+
+       [theta,maj,min,wr]=princax(w)
+
+       Input:  w   = complex vector time series (u+i*v)
+
+       Output: theta = angle of maximum variance, math notation (east == 0, north=90)
+               maj   = major axis of principal ellipse
+               min   = minor axis of principal ellipse
+               wr    = rotated time series, where real(wr) is aligned with
+                       the major axis.
+
+     For derivation, see Emery and Thompson, "Data Analysis Methods
+       in Oceanography", 1998, Pergamon, pages 325-327.  ISBN 0 08 0314341
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     Version 1.0 (12/4/1996) Rich Signell (rsignell@usgs.gov)
+     Version 1.1 (4/21/1999) Rich Signell (rsignell@usgs.gov)
+         fixed bug that sometimes caused the imaginary part
+         of the rotated time series to be aligned with major axis.
+         Also simplified the code.
+     Version 1.2 (3/1/2000) Rich Signell (rsignell@usgs.gov)
+         Simplified maj and min axis computations and added reference
+         to Emery and Thompson book
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    """
+
+    ind = np.nonzero(np.isfinite(w))
+    wr = w.copy()
+    w = w[ind].copy()
+
+    # find covariance matrix
+    cv = np.cov([np.real(w), np.imag(w)])
+
+    # find direction of maximum variance
+    theta = 0.5 * np.arctan2(2. * cv[1, 0], cv[0, 0] - cv[1, 1])
+
+    # find major and minor axis amplitudes
+    term1 = cv[0, 0] + cv[1, 1]
+    term2 = np.sqrt((cv[0, 0] - cv[1, 1])**2 + 4. * cv[1, 0]**2)
+    majo = np.sqrt(0.5 * (term1 + term2))
+    mini = np.sqrt(0.5 * (term1 - term2))
+
+    # rotate into principal ellipse orientation
+    wr[ind] = w * np.exp(-1j * theta)
+    theta = theta * 180 / np.pi
+
+    # convert from math notation to geographic coordinates
+    degrees = (450 - theta) % 360
+
+    return theta, majo, mini, wr, degrees
+
+def rot_earth(u, v, degrees):
+    """
+    Rotate vectors u, v by given number of degrees using earthwise coordinates
+    (0=N, 90=E)
+    - Positive degrees results in a counterclockwise (CCW) rotation
+    - Negative degrees rotates values clockwise
+    """
+
+    up = np.cos(np.deg2rad(degrees)) * u - np.sin(np.deg2rad(degrees)) * v
+    vp = np.sin(np.deg2rad(degrees)) * u + np.cos(np.deg2rad(degrees)) * v
+    return up, vp
