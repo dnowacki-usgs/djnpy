@@ -33,12 +33,12 @@ def sd2uv(s, d):
     """
     Convert speed and direction to u, v components
     """
-
     s = np.asarray(s)
     d = np.asarray(d)
 
     u = s * np.sin(d * np.pi / 180)
     v = s * np.cos(d * np.pi / 180)
+
     return u, v
 
 def boxoff():
@@ -58,8 +58,8 @@ def twinboxoff():
 
 def thinspines(lw=0.5):
     for axis in ['top','bottom','left','right']:
-      plt.gca().spines[axis].set_linewidth(lw)
-      plt.gca().tick_params(width=lw)
+        plt.gca().spines[axis].set_linewidth(lw)
+        plt.gca().tick_params(width=lw)
 
 def find_nearest(array,value):
     """
