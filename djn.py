@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from plotly import offline as py
 import plotly.tools as tls
+import scipy
 
 def uv2sd(u, v):
     """Convert east, north components to speed and direction"""
@@ -229,3 +230,12 @@ def rot_earth(u, v, degrees):
     up = np.cos(np.deg2rad(degrees)) * u - np.sin(np.deg2rad(degrees)) * v
     vp = np.sin(np.deg2rad(degrees)) * u + np.cos(np.deg2rad(degrees)) * v
     return up, vp
+
+def tidalfilt(inmat, fs, cutoff=48.):
+    """
+    Low-pass filter data using a 5th order Butterworth filter
+    """
+
+    # fs in samples per hour
+    b, a = scipy.signal.butter(5, (1./cutoff)/(fs/2.))
+    return scipy.signal.filtfilt(b, a, inmat)
