@@ -10,9 +10,13 @@ def get_coops_data(station,
                    product='hourly_height',
                    units='metric',
                    datum='MLLW',
-                   time_zone='GMT'):
+                   time_zone='GMT',
+                   interval=False):
     """
     units can be 'english' or 'metric'
+
+    start_date and end_date must be formatted like:
+    yyyyMMdd, yyyyMMdd HH:mm, MM/dd/yyyy, or MM/dd/yyyy HH:mm
 
     product options include 'water_level', 'hourly_height', 'predictions'
     from https://tidesandcurrents.noaa.gov/api/
@@ -53,10 +57,13 @@ def get_coops_data(station,
     + units \
     + '&format=json'
 
+    if interval:
+        url = url + '&interval=' + interval
+
     payload = requests.get(url).json()
 
     if 'error' in payload.keys():
-        raise ValueError('Error in returning dataset. Time requested too long?')
+        raise ValueError('Error in returning dataset: ' + payload['error']['message'])
 
     t = []
     v = []
