@@ -78,9 +78,8 @@ def middles(edges):
     diffs = np.median(np.diff(edges));
     edgestart = edges[0] + diffs/2.;
     edgeend = edges[-1] - diffs/2.;
-    mid = np.arange(edgestart, edgeend + diffs, diffs)
 
-    return mid
+    return np.linspace(edgestart, edgeend, len(edges)-1)
 
 def show():
     """
