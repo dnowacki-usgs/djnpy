@@ -78,9 +78,8 @@ def middles(edges):
     diffs = np.median(np.diff(edges));
     edgestart = edges[0] + diffs/2.;
     edgeend = edges[-1] - diffs/2.;
-    mid = np.arange(edgestart, edgeend + diffs, diffs)
 
-    return mid
+    return np.linspace(edgestart, edgeend, len(edges)-1)
 
 def show():
     """
@@ -247,3 +246,37 @@ def tidalfilt(inmat, fs, cutoff=48.):
     # fs in samples per hour
     b, a = scipy.signal.butter(5, (1./cutoff)/(fs/2.))
     return scipy.signal.filtfilt(b, a, inmat)
+
+def get_nan_block_idxs(a, f=np.isnan, mindiff=0, maxdiff=None):
+    """
+    Modified from https://stackoverflow.com/a/15200385/3657988
+    Returns start and stop indexes of (by default) nan blocks
+    Can also return non-nan blocks by modifying f (e.g. by using np.isfinite)
+    minlength is minimum size of the block of nans (or non-nans)
+    """
+    nan_mask = f(a)
+    start_nans_mask = np.concatenate((np.resize(nan_mask[...,0],a.shape[:-1]+(1,)),
+                                 np.logical_and(np.logical_not(nan_mask[...,:-1]), nan_mask[...,1:])
+                                 ), axis=a.ndim-1)
+    stop_nans_mask = np.concatenate((np.logical_and(nan_mask[...,:-1], np.logical_not(nan_mask[...,1:])),
+                                np.resize(nan_mask[...,-1], a.shape[:-1]+(1,))
+                                ), axis=a.ndim-1)
+
+    start_idxs = np.where(start_nans_mask)[0]
+    stop_idxs = np.where(stop_nans_mask)[0]
+    # return stop_idxs[-1] - start_idxs[-1] + 1
+    # return start_idxs, stop_idxs
+    idxs = np.vstack([start_idxs, stop_idxs]).T
+
+    d = np.ravel(np.diff(idxs))
+
+    if maxdiff:
+        return idxs[(d >= mindiff) & (d <= maxdiff), :]
+    else:
+        return idxs[d >= mindiff, :]
+
+def trim_max_diff(da, diff):
+    da[np.ediff1d(da, to_begin=0) > diff] = np.nan
+
+def trim_min_diff(da, diff):
+    da[np.ediff1d(da, to_begin=0) < diff] = np.nan
