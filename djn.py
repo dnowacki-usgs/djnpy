@@ -100,6 +100,13 @@ def set_fontsize(fig,fontsize):
     for textobj in fig.findobj(match=match):
         textobj.set_fontsize(fontsize)
 
+def label_outer():
+    for ax in plt.gcf().axes:
+        try:
+            ax.label_outer()
+        except:
+            pass
+
 def getcols():
     """
     Get the default color order
