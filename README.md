@@ -33,7 +33,8 @@ Functions to interact with `.mat` files created by MATLAB. Includes `loadmat()` 
 ## noaa.py
 `import noaa`
 
-Read data (generally water level) from NOAA COOPS/Tides and Currents sites as a dict: `get_coops_data()`
+* Read data (water level, air pressure, wind, etc) from NOAA COOPS/Tides and Currents sites via the API as a dict: `get_coops_data()`
+* Read data longer than one month and return as an xarray Dataset: `get_long_coops_data()`
 
 ## nwis.py
 `import nwis`
