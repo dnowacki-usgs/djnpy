@@ -1,7 +1,9 @@
 import requests
 import numpy as np
 import datetime as dt
+import pandas as pd
 import pytz
+import xarray as xr
 from dateutil import parser
 
 def get_coops_data(station,
@@ -20,25 +22,25 @@ def get_coops_data(station,
 
     product options include 'water_level', 'hourly_height', 'predictions'
     from https://tidesandcurrents.noaa.gov/api/
-    Option	Description
-    water_level	Preliminary or verified water levels, depending on availability.
-    air_temperature	Air temperature as measured at the station.
-    water_temperature	Water temperature as measured at the station.
-    wind	Wind speed, direction, and gusts as measured at the station.
-    air_pressure	Barometric pressure as measured at the station.
-    air_gap	Air Gap (distance between a bridge and the water's surface) at the station.
-    conductivity	The water's conductivity as measured at the station.
-    visibility	Visibility from the station's visibility sensor. A measure of atmospheric clarity.
-    humidity	Relative humidity as measured at the station.
-    salinity	Salinity and specific gravity data for the station.
-    hourly_height	Verified hourly height water level data for the station.
-    high_low	Verified high/low water level data for the station.
-    daily_mean	Verified daily mean water level data for the station.
-    monthly_mean	Verified monthly mean water level data for the station.
-    one_minute_water_level	One minute water level data for the station.
-    predictions	6 minute predictions water level data for the station.
-    datums	datums data for the stations.
-    currents	Currents data for currents stations.
+    Option              Description
+    water_level         Preliminary or verified water levels, depending on availability.
+    air_temperature     Air temperature as measured at the station.
+    water_temperature   Water temperature as measured at the station.
+    wind                Wind speed, direction, and gusts as measured at the station.
+    air_pressure        Barometric pressure as measured at the station.
+    air_gap             Air Gap (distance between a bridge and the water's surface) at the station.
+    conductivity        The water's conductivity as measured at the station.
+    visibility          Visibility from the station's visibility sensor. A measure of atmospheric clarity.
+    humidity            Relative humidity as measured at the station.
+    salinity            Salinity and specific gravity data for the station.
+    hourly_height       Verified hourly height water level data for the station.
+    high_low            Verified high/low water level data for the station.
+    daily_mean          Verified daily mean water level data for the station.
+    monthly_mean        Verified monthly mean water level data for the station.
+    one_minute_water_level  One minute water level data for the station.
+    predictions         6 minute predictions water level data for the station.
+    datums              datums data for the stations.
+    currents            Currents data for currents stations.
     """
 
     url = 'http://tidesandcurrents.noaa.gov/api/datagetter?product=' \
@@ -67,20 +69,66 @@ def get_coops_data(station,
 
     t = []
     v = []
-    if product == 'water_level' or product == 'hourly_height':
+    wind = {'s': [], 'd': [], 'dr': [], 'g': [], 'f': []}
+    if product == 'water_level' or product == 'hourly_height' or product == 'air_pressure':
         d = payload['data']
     elif product == 'predictions':
         d = payload['predictions']
+    elif product == 'wind':
+        d = payload['data']
+
 
     for n in range(len(d)):
         t.append(pytz.utc.localize(parser.parse(d[n]['t'])))
-        try:
-            v.append(float(d[n]['v']))
-        except:
-            v.append(np.nan)
+        if product == 'wind':
+            for k in ['s', 'd', 'dr', 'g', 'f']:
+                if k == 'dr' or k == 'f':
+                    wind[k].append(d[n][k])
+                else:
+                    try:
+                        wind[k].append(float(d[n][k]))
+                    except:
+                        wind[k].append(np.nan)
+        else:
+            try:
+                v.append(float(d[n]['v']))
+            except:
+                v.append(np.nan)
 
     n = {}
     n['time'] = np.array(t)
-    n['v'] = np.array(v)
+    if product == 'wind':
+        for k in ['s', 'd', 'dr', 'g', 'f']:
+            n[k] = np.array(wind[k])
+    else:
+        n['v'] = np.array(v)
 
     return n
+
+
+def get_long_coops_data(site, start, end, product):
+    """
+    Get NOAA CO-OPS data for longer than 1 month.
+    This function makes recursive calls to get_coops_data() for time ranges
+    longer than one month.
+    """
+
+    # date ranges in 1-month chunks
+    dates = pd.date_range(start, end, freq='MS')
+    if pd.Timestamp(end) > dates[-1]:
+        dates = dates.append(pd.DatetimeIndex([end]))
+    data = []
+    for n in range(len(dates) - 1):
+        data.append(
+            get_coops_data(site,
+                           dates[n].strftime('%Y%m%d'),
+                           (dates[n+1] - pd.Timedelta('1day')).strftime('%Y%m%d'),
+                           product=product))
+
+    dsd = []
+    for n in range(len(data)):
+        dsd.append(xr.Dataset())
+        for k in data[n]:
+            dsd[n][k] = xr.DataArray(data[n][k], dims='time')
+
+    return xr.concat(dsd, dim='time')
