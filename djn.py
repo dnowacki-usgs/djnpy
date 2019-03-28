@@ -280,3 +280,13 @@ def trim_max_diff(da, diff):
 
 def trim_min_diff(da, diff):
     da[np.ediff1d(da, to_begin=0) < diff] = np.nan
+
+def trim_med_diff(da, thresh, kernel_size=5):
+    filtered = scipy.signal.medfilt(da, kernel_size=kernel_size)
+    bads = np.abs(da - filtered) > thresh
+    da[bads] = np.nan
+
+def trim_med_diff_pct(da, thresh, kernel_size=5):
+    filtered = scipy.signal.medfilt(da, kernel_size=kernel_size)
+    bads = (100 * np.abs(da - filtered)/da > thresh)
+    da[bads] = np.nan
