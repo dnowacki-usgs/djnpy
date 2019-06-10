@@ -103,7 +103,14 @@ def get_coops_data(station,
     else:
         n['v'] = np.array(v)
 
-    return n
+    ds = xr.Dataset()
+    for k in n:
+        ds[k] = xr.DataArray(n[k], dims='time')
+
+    for k in payload['metadata']:
+        ds.attrs[k] = payload['metadata'][k]
+
+    return ds
 
 
 def get_long_coops_data(site, start, end, product):
@@ -125,10 +132,4 @@ def get_long_coops_data(site, start, end, product):
                            (dates[n+1] - pd.Timedelta('1day')).strftime('%Y%m%d'),
                            product=product))
 
-    dsd = []
-    for n in range(len(data)):
-        dsd.append(xr.Dataset())
-        for k in data[n]:
-            dsd[n][k] = xr.DataArray(data[n][k], dims='time')
-
-    return xr.concat(dsd, dim='time')
+    return xr.concat(data, dim='time')
