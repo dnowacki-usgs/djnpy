@@ -67,7 +67,7 @@ def get_coops_data(station,
 
     t = []
     v = []
-    if product == 'water_level' or product == 'hourly_height':
+    if product == 'water_level' or product == 'hourly_height' or product == 'air_pressure':
         d = payload['data']
     elif product == 'predictions':
         d = payload['predictions']
