@@ -28,17 +28,22 @@ Useful little tidbits:
 ## matlabtools.py
 `import matlabtools`
 
-Functions to interact with `.mat` files created by MATLAB. Includes `loadmat()` and `savemat()`
+Functions to interact with `.mat` files created by MATLAB. Some functions based on code originally written by J.Paul Rinehimer.
+* `loadmat()` load `.mat` file 
+* `savemat()` save `.mat` file
+* `matlab2datetime()` convert MATLAB serial time to Python datetime, optionally with timezone
+* `datetime2matlab()` convert Python datetime to MATLAB serial time
 
 ## noaa.py
 `import noaa`
 
-Read data (generally water level) from NOAA COOPS/Tides and Currents sites as a dict: `get_coops_data()`
+* `get_coops_data()` Read data (water level, air pressure, wind, etc) from NOAA COOPS/Tides and Currents sites via the API as a dict
+* `get_long_coops_data()` Read data longer than one month and return as an xarray Dataset
 
 ## nwis.py
 `import nwis`
 
-Obtain USGS NWIS data (like water level, discharge, meteorological data, etc) via JSON and return it as a Pandas DataFrame: `nwis_json()`
+* `nwis_json()` Obtain USGS NWIS data (like water level, discharge, meteorological data, etc) via JSON and return it as a Pandas DataFrame
 
 ## wavenumber.py
 `import wavenumber`

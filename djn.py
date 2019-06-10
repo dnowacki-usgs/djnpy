@@ -280,3 +280,22 @@ def trim_max_diff(da, diff):
 
 def trim_min_diff(da, diff):
     da[np.ediff1d(da, to_begin=0) < diff] = np.nan
+
+def trim_med_diff(da, thresh, kernel_size=5):
+    filtered = scipy.signal.medfilt(da, kernel_size=kernel_size)
+    bads = np.abs(da - filtered) > thresh
+    da[bads] = np.nan
+
+def trim_med_diff_pct(da, thresh, kernel_size=5):
+    filtered = scipy.signal.medfilt(da, kernel_size=kernel_size)
+    bads = (100 * np.abs(da - filtered)/da > thresh)
+    da[bads] = np.nan
+
+def xcorr(x, y):
+    # https://currents.soest.hawaii.edu/ocn_data_analysis/_static/SEM_EDOF.html
+    if len(x) != len(y):
+        raise ValueError('Error!: len(x) != len(y)')
+    lags = np.arange(-len(x) + 1, len(x))
+    ccov = np.correlate(x-x.mean(), y-y.mean(), mode='full')
+    ccor = ccov / (len(x) * x.std() * y.std())
+    return lags, ccor
