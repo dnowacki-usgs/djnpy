@@ -43,20 +43,20 @@ def sd2uv(s, d):
 
     return u, v
 
-def boxoff():
+def boxoff(ax=plt.gca()):
     """
     A Matlab-like boxoff to remove top & right border of plots
     """
-    plt.gca().yaxis.set_ticks_position('left')
-    plt.gca().xaxis.set_ticks_position('bottom')
-    plt.gca().spines['top'].set_visible(False)
-    plt.gca().spines['right'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
-def twinboxoff():
+def twinboxoff(ax=plt.gca()):
     """
     A Matlab-like boxoff for twinx plots
     """
-    plt.gca().spines['top'].set_visible(False)
+    ax.spines['top'].set_visible(False)
 
 def thinspines(lw=0.5):
     for axis in ['top','bottom','left','right']:
