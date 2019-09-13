@@ -113,7 +113,14 @@ def get_coops_data(station,
     return ds
 
 
-def get_long_coops_data(site, start, end, product):
+def get_long_coops_data(station,
+                        start_date,
+                        end_date,
+                        product='hourly_height',
+                        units='metric',
+                        datum='MLLW',
+                        time_zone='GMT',
+                        interval=False):
     """
     Get NOAA CO-OPS data for longer than 1 month.
     This function makes recursive calls to get_coops_data() for time ranges
@@ -121,15 +128,19 @@ def get_long_coops_data(site, start, end, product):
     """
 
     # date ranges in 1-month chunks
-    dates = pd.date_range(start, end, freq='MS')
-    if pd.Timestamp(end) > dates[-1]:
-        dates = dates.append(pd.DatetimeIndex([end]))
+    dates = pd.date_range(start_date, end_date, freq='MS')
+    if pd.Timestamp(end_date) > dates[-1]:
+        dates = dates.append(pd.DatetimeIndex([end_date]))
     data = []
     for n in range(len(dates) - 1):
         data.append(
-            get_coops_data(site,
+            get_coops_data(station,
                            dates[n].strftime('%Y%m%d'),
                            (dates[n+1] - pd.Timedelta('1day')).strftime('%Y%m%d'),
-                           product=product))
+                           product=product,
+                           units=units,
+                           datum=datum,
+                           time_zone=time_zone,
+                           interval=interval))
 
     return xr.concat(data, dim='time')
