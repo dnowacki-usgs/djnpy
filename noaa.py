@@ -107,8 +107,9 @@ def get_coops_data(station,
     for k in n:
         ds[k] = xr.DataArray(n[k], dims='time')
 
-    for k in payload['metadata']:
-        ds.attrs[k] = payload['metadata'][k]
+    if 'metadata' in payload:
+        for k in payload['metadata']:
+            ds.attrs[k] = payload['metadata'][k]
 
     return ds
 
