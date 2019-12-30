@@ -5,6 +5,7 @@ import numpy as np
 from plotly import offline as py
 import plotly.tools as tls
 import scipy
+import xarray as xr
 
 def uv2sd(u, v):
     """Convert east, north components to speed and direction"""
@@ -246,6 +247,42 @@ def tidalfilt(inmat, fs, cutoff=48.):
     # fs in samples per hour
     b, a = scipy.signal.butter(5, (1./cutoff)/(fs/2.))
     return scipy.signal.filtfilt(b, a, inmat)
+
+def decompose(u, a, C, fs, cutoff):
+    """ Decompose into advective, dispersive, and stokes components """
+
+    goods = u.notnull() & C.notnull() & a.notnull()
+
+    u = u.interpolate_na(dim='time', fill_value='extrapolate')
+    a = a.interpolate_na(dim='time', fill_value='extrapolate')
+    C = C.interpolate_na(dim='time', fill_value='extrapolate')
+
+    lpu = xr.DataArray(tidalfilt(u, fs, cutoff=cutoff), dims='time')
+    lpa = xr.DataArray(tidalfilt(a, fs, cutoff=cutoff), dims='time')
+    lpC = xr.DataArray(tidalfilt(C, fs, cutoff=cutoff), dims='time')
+
+    adv = xr.DataArray(tidalfilt(lpu * lpa * lpC, fs, cutoff=cutoff), dims='time')
+    disp = xr.DataArray(tidalfilt((u - lpu) * lpa * (C - lpC), fs, cutoff=cutoff), dims='time')
+    stokes = xr.DataArray(tidalfilt((u - lpu) * (a - lpa) * lpC, fs, cutoff=cutoff), dims='time')
+    total = xr.DataArray(tidalfilt(u * a * C, fs, cutoff=cutoff), dims='time')
+
+    lpu[~goods] = np.nan
+    lpa[~goods] = np.nan
+    lpC[~goods] = np.nan
+    adv[~goods] = np.nan
+    disp[~goods] = np.nan
+    stokes[~goods] = np.nan
+    total[~goods] = np.nan
+
+    out = {'lpu': lpu,
+           'lpC': lpC,
+           'lpa': lpa,
+           'adv': adv,
+           'disp': disp,
+           'stokes': stokes,
+           'total': total}
+
+    return out
 
 def get_nan_block_idxs(a, f=np.isnan, mindiff=0, maxdiff=None):
     """
