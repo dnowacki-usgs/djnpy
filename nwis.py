@@ -6,7 +6,14 @@ from dateutil import parser
 import pytz
 
 
-def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, freq='iv'):
+def nwis_json(site='01646500',
+              parm='00065',
+              start=None,
+              end=None,
+              period=None,
+              freq='iv',
+              xarray=False):
+
     """Obtain NWIS data via JSON.
 
     Parameters
@@ -28,6 +35,8 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
         Duration following ISO-8601 duration format, e.g. 'P1D' for one day
         Default one day.
         If specifying period, do not specify start and end.
+    xarray : bool, optional
+        If True, return an xarray Dataset instead of pandas DataFrame
 
     Returns
     -------
@@ -43,6 +52,8 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
         - 'latitude': site latitude
         - 'longitude': site longitude
         - 'srs': latitude and longitude spatial reference system
+
+        If xarray is True, return an xarray Dataset instead
 
     More info about the URL format is at https://waterservices.usgs.gov
 
@@ -82,14 +93,27 @@ def nwis_json(site='01646500', parm='00065', start=None, end=None, period=None, 
     nwis['val'] = np.array([float(v[i]['value']) for i in range(len(v))])
     nwis['val'][nwis['val'] == pvt['variable']['noDataValue']] = np.nan
 
-    return pd.DataFrame(nwis,
-                        columns=['time',
-                                 'sitename',
-                                 'sitecode',
-                                 'val',
-                                 'unit',
-                                 'variableName',
-                                 'timelocal',
-                                 'latitude',
-                                 'longitude',
-                                 'srs']).set_index('time')
+    df = pd.DataFrame(nwis,
+                      columns=['time',
+                               'sitename',
+                               'sitecode',
+                               'val',
+                               'unit',
+                               'variableName',
+                               'timelocal',
+                               'latitude',
+                               'longitude',
+                               'srs']).set_index('time')
+
+    if xarray:
+        ds = df.to_xarray()
+        ds['time'] = pd.DatetimeIndex(ds['time'].values)
+        ds['val'].attrs['units'] = ds['unit'].values[0]
+        ds['val'].attrs['variableName'] = ds['variableName'].values[0]
+        ds = ds.drop(['unit', 'variableName', 'timelocal'])
+        for k in ['sitename', 'latitude', 'longitude', 'sitecode', 'srs']:
+            ds.attrs[k] = ds[k].values[0]
+            ds = ds.drop(k)
+        return ds
+    else:
+        return df
