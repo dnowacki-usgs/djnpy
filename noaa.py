@@ -76,7 +76,11 @@ def get_coops_data(station,
         d = payload['predictions']
     elif product == 'wind':
         d = payload['data']
-
+    elif product == 'datums':
+        datums = {}
+        for k in payload['datums']:
+            datums[k['n']] = float(k['v'])
+        return datums
 
     for n in range(len(d)):
         t.append(pytz.utc.localize(parser.parse(d[n]['t'])))
@@ -134,14 +138,21 @@ def get_long_coops_data(station,
         dates = dates.append(pd.DatetimeIndex([end_date]))
     data = []
     for n in range(len(dates) - 1):
-        data.append(
-            get_coops_data(station,
-                           dates[n].strftime('%Y%m%d'),
-                           (dates[n+1] - pd.Timedelta('1day')).strftime('%Y%m%d'),
-                           product=product,
-                           units=units,
-                           datum=datum,
-                           time_zone=time_zone,
-                           interval=interval))
+        print(dates[n], dates[n+1])
+        try:
+            data.append(
+                get_coops_data(station,
+                               dates[n].strftime('%Y%m%d'),
+                               (dates[n+1] - pd.Timedelta('1day')).strftime('%Y%m%d'),
+                               product=product,
+                               units=units,
+                               datum=datum,
+                               time_zone=time_zone,
+                               interval=interval))
+        except ValueError as e:
+            # sometimes a station goes offline
+            if 'No data was found' in repr(e):
+                print('no data in {} - {}; skipping'.format(dates[n], dates[n+1]))
+                continue
 
     return xr.concat(data, dim='time')
