@@ -110,10 +110,10 @@ def nwis_json(site='01646500',
         ds['time'] = pd.DatetimeIndex(ds['time'].values)
         ds['val'].attrs['units'] = ds['unit'].values[0]
         ds['val'].attrs['variableName'] = ds['variableName'].values[0]
-        ds = ds.drop(['unit', 'variableName', 'timelocal'])
+        ds = ds.drop_vars(['unit', 'variableName', 'timelocal'])
         for k in ['sitename', 'latitude', 'longitude', 'sitecode', 'srs']:
             ds.attrs[k] = ds[k].values[0]
-            ds = ds.drop(k)
+            ds = ds.drop_vars(k)
         return ds
     else:
         return df
