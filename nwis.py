@@ -55,6 +55,13 @@ def nwis_json(site='01646500',
 
         If xarray is True, return an xarray Dataset instead
 
+    Warnings
+    --------
+    This will fail on Windows systems when trying to retrieve data from before
+    1970. See https://bugs.python.org/issue36759 for more details.
+
+    Notes
+    -----
     More info about the URL format is at https://waterservices.usgs.gov
 
     dnowacki@usgs.gov 2016-07
