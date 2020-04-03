@@ -239,13 +239,13 @@ def rot_earth(u, v, degrees):
     vp = np.sin(np.deg2rad(degrees)) * u + np.cos(np.deg2rad(degrees)) * v
     return up, vp
 
-def tidalfilt(inmat, fs, cutoff=48.):
+def tidalfilt(inmat, fs, cutoff=48., btype='low'):
     """
     Low-pass filter data using a 5th order Butterworth filter
     """
 
     # fs in samples per hour
-    b, a = scipy.signal.butter(5, (1./cutoff)/(fs/2.))
+    b, a = scipy.signal.butter(5, (1./cutoff)/(fs/2.), btype=btype)
     return scipy.signal.filtfilt(b, a, inmat)
 
 def decompose(u, a, C, fs, cutoff):
