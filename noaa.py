@@ -115,6 +115,8 @@ def get_coops_data(station,
         for k in payload['metadata']:
             ds.attrs[k] = payload['metadata'][k]
 
+    ds['time'] = pd.DatetimeIndex(ds['time'].values)
+
     return ds
 
 
@@ -155,4 +157,7 @@ def get_long_coops_data(station,
                 print('no data in {} - {}; skipping'.format(dates[n], dates[n+1]))
                 continue
 
-    return xr.concat(data, dim='time')
+    ds = xr.concat(data, dim='time')
+    ds['time'] = pd.DatetimeIndex(ds['time'].values)
+
+    return ds
