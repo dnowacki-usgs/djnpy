@@ -72,6 +72,9 @@ def get_coops_data(station,
     wind = {'s': [], 'd': [], 'dr': [], 'g': [], 'f': []}
     if product == 'water_level' or product == 'hourly_height' or product == 'air_pressure':
         d = payload['data']
+    elif product == 'monthly_mean':
+        d = payload['data']
+        monthly = {x:[] for x in d[0].keys() if x != 'month' and x != 'year'}
     elif product == 'predictions':
         d = payload['predictions']
     elif product == 'wind':
@@ -83,7 +86,10 @@ def get_coops_data(station,
         return datums
 
     for n in range(len(d)):
-        t.append(pytz.utc.localize(parser.parse(d[n]['t'])))
+        if product != 'monthly_mean':
+            t.append(pytz.utc.localize(parser.parse(d[n]['t'])))
+        else:
+            t.append(parser.parse(d[n]['year'] + '-' + d[n]['month'] + '-01'))
         if product == 'wind':
             for k in ['s', 'd', 'dr', 'g', 'f']:
                 if k == 'dr' or k == 'f':
@@ -93,6 +99,12 @@ def get_coops_data(station,
                         wind[k].append(float(d[n][k]))
                     except:
                         wind[k].append(np.nan)
+        elif product == 'monthly_mean':
+            for k in monthly.keys():
+                try:
+                    monthly[k].append(float(d[n][k]))
+                except:
+                    monthly[k].append(np.nan)
         else:
             try:
                 v.append(float(d[n]['v']))
@@ -104,6 +116,9 @@ def get_coops_data(station,
     if product == 'wind':
         for k in ['s', 'd', 'dr', 'g', 'f']:
             n[k] = np.array(wind[k])
+    elif product == 'monthly_mean':
+        for k in monthly.keys():
+            n[k] = np.array(monthly[k])
     else:
         n['v'] = np.array(v)
 
