@@ -6,13 +6,15 @@ from dateutil import parser
 import pytz
 
 
-def nwis_json(site='01646500',
-              parm='00065',
-              start=None,
-              end=None,
-              period=None,
-              freq='iv',
-              xarray=False):
+def nwis_json(
+    site="01646500",
+    parm="00065",
+    start=None,
+    end=None,
+    period=None,
+    freq="iv",
+    xarray=False,
+):
 
     """Obtain NWIS data via JSON.
 
@@ -68,57 +70,75 @@ def nwis_json(site='01646500',
     """
 
     if period is None and start is None and end is None:
-        period='P1D'
+        period = "P1D"
 
     if period is None:
-        url = ('http://waterservices.usgs.gov/nwis/' + freq +
-              '/?format=json&sites=' + str(site) +
-              '&startDT=' + start +
-              '&endDt=' + end +
-              '&parameterCd=' + str(parm))
+        url = (
+            "http://waterservices.usgs.gov/nwis/"
+            + freq
+            + "/?format=json&sites="
+            + str(site)
+            + "&startDT="
+            + start
+            + "&endDt="
+            + end
+            + "&parameterCd="
+            + str(parm)
+        )
     else:
-        url = ('http://waterservices.usgs.gov/nwis/' + freq +
-              '/?format=json&sites=' + str(site) +
-              '&period=' + period +
-              '&parameterCd=' + str(parm))
+        url = (
+            "http://waterservices.usgs.gov/nwis/"
+            + freq
+            + "/?format=json&sites="
+            + str(site)
+            + "&period="
+            + period
+            + "&parameterCd="
+            + str(parm)
+        )
 
     payload = requests.get(url).json()
-    v = payload['value']['timeSeries'][0]['values'][0]['value']
-    pvt = payload['value']['timeSeries'][0]
+    v = payload["value"]["timeSeries"][0]["values"][0]["value"]
+    pvt = payload["value"]["timeSeries"][0]
     nwis = {}
-    nwis['timelocal'] = np.array(
-        [parser.parse(v[i]['dateTime']) for i in range(len(v))])
+    nwis["timelocal"] = np.array(
+        [parser.parse(v[i]["dateTime"]) for i in range(len(v))]
+    )
     # Convert local time to UTC
-    nwis['time'] = np.array([x.astimezone(pytz.utc) for x in nwis['timelocal']])
-    nwis['sitename'] = pvt['sourceInfo']['siteName']
-    nwis['sitecode'] = pvt['sourceInfo']['siteCode'][0]['value']
-    nwis['latitude'] = pvt['sourceInfo']['geoLocation']['geogLocation']['latitude']
-    nwis['longitude'] = pvt['sourceInfo']['geoLocation']['geogLocation']['longitude']
-    nwis['srs'] = pvt['sourceInfo']['geoLocation']['geogLocation']['srs']
-    nwis['unit'] = pvt['variable']['unit']['unitCode']
-    nwis['variableName'] = pvt['variable']['variableName']
-    nwis['val'] = np.array([float(v[i]['value']) for i in range(len(v))])
-    nwis['val'][nwis['val'] == pvt['variable']['noDataValue']] = np.nan
+    nwis["time"] = np.array([x.astimezone(pytz.utc) for x in nwis["timelocal"]])
+    nwis["sitename"] = pvt["sourceInfo"]["siteName"]
+    nwis["sitecode"] = pvt["sourceInfo"]["siteCode"][0]["value"]
+    nwis["latitude"] = pvt["sourceInfo"]["geoLocation"]["geogLocation"]["latitude"]
+    nwis["longitude"] = pvt["sourceInfo"]["geoLocation"]["geogLocation"]["longitude"]
+    nwis["srs"] = pvt["sourceInfo"]["geoLocation"]["geogLocation"]["srs"]
+    nwis["unit"] = pvt["variable"]["unit"]["unitCode"]
+    nwis["variableName"] = pvt["variable"]["variableName"]
+    nwis["val"] = np.array([float(v[i]["value"]) for i in range(len(v))])
+    nwis["val"][nwis["val"] == pvt["variable"]["noDataValue"]] = np.nan
 
-    df = pd.DataFrame(nwis,
-                      columns=['time',
-                               'sitename',
-                               'sitecode',
-                               'val',
-                               'unit',
-                               'variableName',
-                               'timelocal',
-                               'latitude',
-                               'longitude',
-                               'srs']).set_index('time')
+    df = pd.DataFrame(
+        nwis,
+        columns=[
+            "time",
+            "sitename",
+            "sitecode",
+            "val",
+            "unit",
+            "variableName",
+            "timelocal",
+            "latitude",
+            "longitude",
+            "srs",
+        ],
+    ).set_index("time")
 
     if xarray:
         ds = df.to_xarray()
-        ds['time'] = pd.DatetimeIndex(ds['time'].values)
-        ds['val'].attrs['units'] = ds['unit'].values[0]
-        ds['val'].attrs['variableName'] = ds['variableName'].values[0]
-        ds = ds.drop_vars(['unit', 'variableName', 'timelocal'])
-        for k in ['sitename', 'latitude', 'longitude', 'sitecode', 'srs']:
+        ds["time"] = pd.DatetimeIndex(ds["time"].values)
+        ds["val"].attrs["units"] = ds["unit"].values[0]
+        ds["val"].attrs["variableName"] = ds["variableName"].values[0]
+        ds = ds.drop_vars(["unit", "variableName", "timelocal"])
+        for k in ["sitename", "latitude", "longitude", "sitecode", "srs"]:
             ds.attrs[k] = ds[k].values[0]
             ds = ds.drop_vars(k)
         return ds

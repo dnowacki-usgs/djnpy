@@ -6,14 +6,17 @@ import pytz
 import xarray as xr
 from dateutil import parser
 
-def get_coops_data(station,
-                   start_date,
-                   end_date,
-                   product='hourly_height',
-                   units='metric',
-                   datum='MLLW',
-                   time_zone='GMT',
-                   interval=False):
+
+def get_coops_data(
+    station,
+    start_date,
+    end_date,
+    product="hourly_height",
+    units="metric",
+    datum="MLLW",
+    time_zone="GMT",
+    interval=False,
+):
     """
     units can be 'english' or 'metric'
 
@@ -43,63 +46,69 @@ def get_coops_data(station,
     currents            Currents data for currents stations.
     """
 
-    url = 'http://tidesandcurrents.noaa.gov/api/datagetter?product=' \
-    + product \
-    + '&application=NOS.COOPS.TAC.WL&begin_date=' \
-    + str(start_date) \
-    + '&end_date=' \
-    + str(end_date) \
-    + '&datum=' \
-    + datum \
-    + '&station=' \
-    + str(station) \
-    + '&time_zone=' \
-    + time_zone \
-    + '&units=' \
-    + units \
-    + '&format=json'
+    url = (
+        "http://tidesandcurrents.noaa.gov/api/datagetter?product="
+        + product
+        + "&application=NOS.COOPS.TAC.WL&begin_date="
+        + str(start_date)
+        + "&end_date="
+        + str(end_date)
+        + "&datum="
+        + datum
+        + "&station="
+        + str(station)
+        + "&time_zone="
+        + time_zone
+        + "&units="
+        + units
+        + "&format=json"
+    )
 
     if interval:
-        url = url + '&interval=' + interval
+        url = url + "&interval=" + interval
 
     payload = requests.get(url).json()
 
-    if 'error' in payload.keys():
-        raise ValueError('Error in returning dataset: ' + payload['error']['message'])
+    if "error" in payload.keys():
+        raise ValueError("Error in returning dataset: " + payload["error"]["message"])
 
     t = []
     v = []
-    wind = {'s': [], 'd': [], 'dr': [], 'g': [], 'f': []}
-    if product == 'water_level' or product == 'hourly_height' or product == 'air_pressure':
-        d = payload['data']
-    elif product == 'monthly_mean':
-        d = payload['data']
-        monthly = {x:[] for x in d[0].keys() if x != 'month' and x != 'year'}
-    elif product == 'predictions':
-        d = payload['predictions']
-    elif product == 'wind':
-        d = payload['data']
-    elif product == 'datums':
+    wind = {"s": [], "d": [], "dr": [], "g": [], "f": []}
+    if (
+        product == "water_level"
+        or product == "hourly_height"
+        or product == "air_pressure"
+    ):
+        d = payload["data"]
+    elif product == "monthly_mean":
+        d = payload["data"]
+        monthly = {x: [] for x in d[0].keys() if x != "month" and x != "year"}
+    elif product == "predictions":
+        d = payload["predictions"]
+    elif product == "wind":
+        d = payload["data"]
+    elif product == "datums":
         datums = {}
-        for k in payload['datums']:
-            datums[k['n']] = float(k['v'])
+        for k in payload["datums"]:
+            datums[k["n"]] = float(k["v"])
         return datums
 
     for n in range(len(d)):
-        if product != 'monthly_mean':
-            t.append(pytz.utc.localize(parser.parse(d[n]['t'])))
+        if product != "monthly_mean":
+            t.append(pytz.utc.localize(parser.parse(d[n]["t"])))
         else:
-            t.append(parser.parse(d[n]['year'] + '-' + d[n]['month'] + '-01'))
-        if product == 'wind':
-            for k in ['s', 'd', 'dr', 'g', 'f']:
-                if k == 'dr' or k == 'f':
+            t.append(parser.parse(d[n]["year"] + "-" + d[n]["month"] + "-01"))
+        if product == "wind":
+            for k in ["s", "d", "dr", "g", "f"]:
+                if k == "dr" or k == "f":
                     wind[k].append(d[n][k])
                 else:
                     try:
                         wind[k].append(float(d[n][k]))
                     except:
                         wind[k].append(np.nan)
-        elif product == 'monthly_mean':
+        elif product == "monthly_mean":
             for k in monthly.keys():
                 try:
                     monthly[k].append(float(d[n][k]))
@@ -107,42 +116,44 @@ def get_coops_data(station,
                     monthly[k].append(np.nan)
         else:
             try:
-                v.append(float(d[n]['v']))
+                v.append(float(d[n]["v"]))
             except:
                 v.append(np.nan)
 
     n = {}
-    n['time'] = np.array(t)
-    if product == 'wind':
-        for k in ['s', 'd', 'dr', 'g', 'f']:
+    n["time"] = np.array(t)
+    if product == "wind":
+        for k in ["s", "d", "dr", "g", "f"]:
             n[k] = np.array(wind[k])
-    elif product == 'monthly_mean':
+    elif product == "monthly_mean":
         for k in monthly.keys():
             n[k] = np.array(monthly[k])
     else:
-        n['v'] = np.array(v)
+        n["v"] = np.array(v)
 
     ds = xr.Dataset()
     for k in n:
-        ds[k] = xr.DataArray(n[k], dims='time')
+        ds[k] = xr.DataArray(n[k], dims="time")
 
-    if 'metadata' in payload:
-        for k in payload['metadata']:
-            ds.attrs[k] = payload['metadata'][k]
+    if "metadata" in payload:
+        for k in payload["metadata"]:
+            ds.attrs[k] = payload["metadata"][k]
 
-    ds['time'] = pd.DatetimeIndex(ds['time'].values)
+    ds["time"] = pd.DatetimeIndex(ds["time"].values)
 
     return ds
 
 
-def get_long_coops_data(station,
-                        start_date,
-                        end_date,
-                        product='hourly_height',
-                        units='metric',
-                        datum='MLLW',
-                        time_zone='GMT',
-                        interval=False):
+def get_long_coops_data(
+    station,
+    start_date,
+    end_date,
+    product="hourly_height",
+    units="metric",
+    datum="MLLW",
+    time_zone="GMT",
+    interval=False,
+):
     """
     Get NOAA CO-OPS data for longer than 1 month.
     This function makes recursive calls to get_coops_data() for time ranges
@@ -150,29 +161,32 @@ def get_long_coops_data(station,
     """
 
     # date ranges in 1-month chunks
-    dates = pd.date_range(start_date, end_date, freq='MS')
+    dates = pd.date_range(start_date, end_date, freq="MS")
     if pd.Timestamp(end_date) > dates[-1]:
         dates = dates.append(pd.DatetimeIndex([end_date]))
     data = []
     for n in range(len(dates) - 1):
-        print(dates[n], dates[n+1])
+        print(dates[n], dates[n + 1])
         try:
             data.append(
-                get_coops_data(station,
-                               dates[n].strftime('%Y%m%d'),
-                               (dates[n+1] - pd.Timedelta('1day')).strftime('%Y%m%d'),
-                               product=product,
-                               units=units,
-                               datum=datum,
-                               time_zone=time_zone,
-                               interval=interval))
+                get_coops_data(
+                    station,
+                    dates[n].strftime("%Y%m%d"),
+                    (dates[n + 1] - pd.Timedelta("1day")).strftime("%Y%m%d"),
+                    product=product,
+                    units=units,
+                    datum=datum,
+                    time_zone=time_zone,
+                    interval=interval,
+                )
+            )
         except ValueError as e:
             # sometimes a station goes offline
-            if 'No data was found' in repr(e):
-                print('no data in {} - {}; skipping'.format(dates[n], dates[n+1]))
+            if "No data was found" in repr(e):
+                print("no data in {} - {}; skipping".format(dates[n], dates[n + 1]))
                 continue
 
-    ds = xr.concat(data, dim='time')
-    ds['time'] = pd.DatetimeIndex(ds['time'].values)
+    ds = xr.concat(data, dim="time")
+    ds["time"] = pd.DatetimeIndex(ds["time"].values)
 
     return ds

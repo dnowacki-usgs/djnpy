@@ -5,6 +5,7 @@ from __future__ import division
 import wavenumber as wn
 import numpy as np
 
+
 def celerity(omega, d):
     """
     c = celerity(omega, d)
@@ -13,6 +14,7 @@ def celerity(omega, d):
     k = wn.qkfs(omega, d)
     c = omega / k
     return c
+
 
 def energydens(a, rho=1025, g=9.81):
     """
@@ -23,7 +25,8 @@ def energydens(a, rho=1025, g=9.81):
     a: wave amplitude
     """
 
-    return 0.5 * rho * g * a**2
+    return 0.5 * rho * g * a ** 2
+
 
 def groupvel(omega, d):
     """
