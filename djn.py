@@ -5,6 +5,7 @@ import numpy as np
 from plotly import offline as py
 import plotly.tools as tls
 import scipy
+import scipy.stats
 import xarray as xr
 
 def uv2sd(u, v):
@@ -336,3 +337,20 @@ def xcorr(x, y):
     ccov = np.correlate(x-x.mean(), y-y.mean(), mode='full')
     ccor = ccov / (len(x) * x.std() * y.std())
     return lags, ccor
+
+def get_smear(x, y, slope, intercept):
+    # ei = np.log(sscvals) - (lr.slope*np.log(Turbvals) + lr.intercept)
+    # smear = np.mean(np.exp(ei))
+    ei = np.log(y) - (slope*np.log(x) + intercept)
+    return np.mean(np.exp(ei))
+
+def log_fit_smear(x, y):
+    """ compute log fit with Duan's smearing estimate """
+    goods = np.isfinite(x) & np.isfinite(y)
+    lr = scipy.stats.linregress(np.log(x[goods]), np.log(y[goods]))
+    smear = get_smear(x[goods], y[goods], lr.slope, lr.intercept)
+    return lr, smear
+
+def make_log_smear_fit(xs, lr, smear):
+    """ Given x, linregress results, and smear values, compute a log-smear fit """
+    return np.exp(lr.slope*np.log(xs) + lr.intercept)*smear
