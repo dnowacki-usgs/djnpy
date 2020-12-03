@@ -47,7 +47,7 @@ def get_coops_data(
     """
 
     url = (
-        "http://tidesandcurrents.noaa.gov/api/datagetter?product="
+        "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product="
         + product
         + "&application=NOS.COOPS.TAC.WL&begin_date="
         + str(start_date)
