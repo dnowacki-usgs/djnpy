@@ -16,6 +16,7 @@ def get_coops_data(
     datum="MLLW",
     time_zone="GMT",
     interval=False,
+    bin=False,
 ):
     """
     units can be 'english' or 'metric'
@@ -67,6 +68,12 @@ def get_coops_data(
     if interval:
         url = url + "&interval=" + interval
 
+    if bin:
+        url = f"{url}&bin={bin}"
+
+    if product == "currents_predictions":
+        url = f"{url}&vel_type=speed_dir"
+
     payload = requests.get(url).json()
 
     if "error" in payload.keys():
@@ -75,6 +82,7 @@ def get_coops_data(
     t = []
     v = []
     wind = {"s": [], "d": [], "dr": [], "g": [], "f": []}
+    cp = {"Speed": [], "Bin": [], "Direction": [], 'Depth': []}
     if (
         product == "water_level"
         or product == "hourly_height"
@@ -88,6 +96,8 @@ def get_coops_data(
         d = payload["predictions"]
     elif product == "wind":
         d = payload["data"]
+    elif product == "currents_predictions":
+        d = payload['current_predictions']['cp']
     elif product == "datums":
         datums = {}
         for k in payload["datums"]:
@@ -95,7 +105,9 @@ def get_coops_data(
         return datums
 
     for n in range(len(d)):
-        if product != "monthly_mean":
+        if product == "currents_predictions":
+            t.append(pytz.utc.localize(parser.parse(d[n]['Time'])))
+        elif product != "monthly_mean":
             t.append(pytz.utc.localize(parser.parse(d[n]["t"])))
         else:
             t.append(parser.parse(d[n]["year"] + "-" + d[n]["month"] + "-01"))
@@ -114,11 +126,16 @@ def get_coops_data(
                     monthly[k].append(float(d[n][k]))
                 except:
                     monthly[k].append(np.nan)
+        elif product == "currents_predictions":
+            for k in cp:
+                cp[k].append(float(d[n][k]))
         else:
             try:
                 v.append(float(d[n]["v"]))
             except:
                 v.append(np.nan)
+
+    ds = xr.Dataset()
 
     n = {}
     n["time"] = np.array(t)
@@ -128,10 +145,14 @@ def get_coops_data(
     elif product == "monthly_mean":
         for k in monthly.keys():
             n[k] = np.array(monthly[k])
+    elif product == "currents_predictions":
+        for k in cp:
+            n[k] = np.array(cp[k])
+        if "units" in payload['current_predictions']:
+            ds.attrs["units"] = payload['current_predictions']["units"]
     else:
         n["v"] = np.array(v)
 
-    ds = xr.Dataset()
     for k in n:
         ds[k] = xr.DataArray(n[k], dims="time")
 
@@ -153,6 +174,7 @@ def get_long_coops_data(
     datum="MLLW",
     time_zone="GMT",
     interval=False,
+    bin=False,
 ):
     """
     Get NOAA CO-OPS data for longer than 1 month.
@@ -178,6 +200,7 @@ def get_long_coops_data(
                     datum=datum,
                     time_zone=time_zone,
                     interval=interval,
+                    bin=bin,
                 )
             )
         except ValueError as e:
