@@ -1,9 +1,12 @@
-from __future__ import print_function, division
+from __future__ import division, print_function
+
+import json
+
 import requests
 import numpy as np
 import pandas as pd
-from dateutil import parser
 import pytz
+from dateutil import parser
 
 
 def nwis_json(
@@ -69,6 +72,14 @@ def nwis_json(
     dnowacki@usgs.gov 2016-07
     """
 
+    if start is not None and (pd.Timestamp(start) < pd.Timestamp("1970-01-01")):
+        import warnings
+
+        warnings.warn(
+            "Requesting data from before 1970 on Windows systems will fail.",
+            RuntimeWarning,
+        )
+
     if period is None and start is None and end is None:
         period = "P1D"
 
@@ -97,15 +108,23 @@ def nwis_json(
             + str(parm)
         )
 
-    payload = requests.get(url).json()
+    try:
+        payload = requests.get(url).json()
+    except json.JSONDecodeError:
+        raise ValueError(
+            f"Error decoding JSON. For more details check the following URL in a broswer: <{url}>"
+        )
     v = payload["value"]["timeSeries"][0]["values"][0]["value"]
     pvt = payload["value"]["timeSeries"][0]
     nwis = {}
     nwis["timelocal"] = np.array(
         [parser.parse(v[i]["dateTime"]) for i in range(len(v))]
     )
-    # Convert local time to UTC
-    nwis["time"] = np.array([x.astimezone(pytz.utc) for x in nwis["timelocal"]])
+    # Convert local time to UTC if unit values
+    if freq == "iv":
+        nwis["time"] = np.array([x.astimezone(pytz.utc) for x in nwis["timelocal"]])
+    elif freq == "dv":
+        nwis["time"] = nwis["timelocal"]  # keep naive date
     nwis["sitename"] = pvt["sourceInfo"]["siteName"]
     nwis["sitecode"] = pvt["sourceInfo"]["siteCode"][0]["value"]
     nwis["latitude"] = pvt["sourceInfo"]["geoLocation"]["geogLocation"]["latitude"]
