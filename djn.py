@@ -369,6 +369,12 @@ def trim_med_diff_pct(da, thresh, kernel_size=5):
 
 def xcorr(x, y):
     # https://currents.soest.hawaii.edu/ocn_data_analysis/_static/SEM_EDOF.html
+    # if second argument leads the first argument (rises first in time)
+    # then the max correlation will be at a positive lag value
+    # to summarize from the site above:
+    # i.e., a positive lag means the first series lags the second, or the second
+    # leads the first--peaks earlier in time, so at a location to the left on
+    # the time series plot.
     if len(x) != len(y):
         raise ValueError("Error!: len(x) != len(y)")
     lags = np.arange(-len(x) + 1, len(x))
