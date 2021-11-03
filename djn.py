@@ -401,3 +401,8 @@ def log_fit_smear(x, y):
 def make_log_smear_fit(xs, lr, smear):
     """ Given x, linregress results, and smear values, compute a log-smear fit """
     return np.exp(lr.slope * np.log(xs) + lr.intercept) * smear
+
+
+def argmaxn(arr, n):
+    # find largest N values from array
+    return np.argpartition(arr, -n)[-n:]
