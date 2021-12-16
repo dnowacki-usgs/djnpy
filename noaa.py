@@ -242,3 +242,14 @@ def get_long_coops_data(
     ds["time"] = pd.DatetimeIndex(ds["time"].values)
 
     return ds
+
+
+def get_coops_metadata(station):
+    """
+    Get NOAA CO-OPS metadata for a single station
+    """
+    url = f"https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations/{station}.json"
+
+    payload = requests.get(url).json()
+
+    return payload
