@@ -48,6 +48,7 @@ def _todict(matobj):
 def matlab2datetime(matlab_datenum, tz=True):
     """
     Convert matlab datenum to python datetime, optionally with UTC timezone applied
+    https://stackoverflow.com/q/13965740
     """
     utc = pytz.timezone("UTC")
     day = dt.datetime.fromordinal(int(matlab_datenum))
