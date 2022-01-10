@@ -6,6 +6,7 @@ from plotly import offline as py
 import plotly.tools as tls
 import scipy
 import scipy.stats
+import scipy.signal
 import xarray as xr
 
 
@@ -268,7 +269,7 @@ def tidalfilt(inmat, fs, cutoff=48.0, btype="low"):
 
 
 def decompose(u, a, C, fs, cutoff):
-    """ Decompose into advective, dispersive, and stokes components """
+    """Decompose into advective, dispersive, and stokes components"""
 
     goods = u.notnull() & C.notnull() & a.notnull()
 
@@ -393,7 +394,7 @@ def get_smear(x, y, slope, intercept):
 
 
 def log_fit_smear(x, y):
-    """ compute log fit with Duan's smearing estimate """
+    """compute log fit with Duan's smearing estimate"""
     goods = np.isfinite(x) & np.isfinite(y)
     lr = scipy.stats.linregress(np.log(x[goods]), np.log(y[goods]))
     smear = get_smear(x[goods], y[goods], lr.slope, lr.intercept)
@@ -401,7 +402,7 @@ def log_fit_smear(x, y):
 
 
 def make_log_smear_fit(xs, lr, smear):
-    """ Given x, linregress results, and smear values, compute a log-smear fit """
+    """Given x, linregress results, and smear values, compute a log-smear fit"""
     return np.exp(lr.slope * np.log(xs) + lr.intercept) * smear
 
 
