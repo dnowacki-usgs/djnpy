@@ -24,12 +24,18 @@ Useful little tidbits:
 * `nextcolor()` return the next color in the default matplotlib color order
 * `siegel()` compute robust regression using repeated medians, following Siegel (1982). From Vlad Niculae.
 * `princax()` compute principal axis, rotation axis, and principal ellipse for velocity data. From Rich Signell.
+* `rot_earth()` rotate vectors u, v by given number of degrees using earthwise coordinates (0=N, 90=E)
+* `tidalfilt()` low-pass filter data using a 5th order Butterworth filter. Useful for tidally filtering data.
+* `get_nan_block_idxs()` return start and stop indexes of (by default) nan blocks`
+* `xcorr()` cross-correlate data
+* `haversine()` calculate the great circle distance in kilometers between two points on the earth (specified in decimal degrees)
+* `argmaxn()` return largest N values from array
 
 ## matlabtools.py
 `import matlabtools`
 
 Functions to interact with `.mat` files created by MATLAB. Some functions based on code originally written by J.Paul Rinehimer.
-* `loadmat()` load `.mat` file 
+* `loadmat()` load `.mat` file
 * `savemat()` save `.mat` file
 * `matlab2datetime()` convert MATLAB serial time to Python datetime, optionally with timezone
 * `datetime2matlab()` convert Python datetime to MATLAB serial time
