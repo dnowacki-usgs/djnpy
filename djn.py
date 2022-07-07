@@ -136,6 +136,20 @@ def nextcolor(n=1):
         next(plt.gca()._get_lines.prop_cycler)["color"]
 
 
+def splabel(letter, xfrac=0.02, yfrac=0.98):
+    """
+    Plot a subplot letter label like "(a)" in figures
+    """
+    xlims = plt.xlim()
+    ylims = plt.ylim()
+    plt.text(
+        xlims[0] + xfrac * np.diff(xlims),
+        ylims[0] + yfrac * np.diff(ylims),
+        letter,
+        va="top",
+    )
+
+
 def siegel(x, y):
     """
     Compute robust regression using repeated medians, following Siegel (1982)
