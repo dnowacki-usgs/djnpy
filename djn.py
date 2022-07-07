@@ -22,7 +22,7 @@ def uv2sd(u, v):
     # print(spds)
     # print(dirs)
 
-    spds = np.sqrt(u ** 2 + v ** 2)
+    spds = np.sqrt(u**2 + v**2)
     dirs = np.rad2deg(np.arctan(u / v))
     dirs[np.logical_and(u == 0, v > 0)] = 0
     # dirs[np.logical_and(u > 0, v > 0)] = np.rad2deg(np.arctan(u[np.logical_and(u > 0, v > 0)] / v[np.logical_and(u > 0, v > 0)]))
