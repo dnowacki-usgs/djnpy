@@ -41,6 +41,11 @@ Functions to interact with `.mat` files created by MATLAB. Some functions based 
 * `matlab2datetime()` convert MATLAB serial time to Python datetime, optionally with timezone
 * `datetime2matlab()` convert Python datetime to MATLAB serial time
 
+## mesowest.py
+`import mesowest`
+
+* `mesowest_to_xarray()` convert a dictionary of data returned by the [MesoPy](https://github.com/mesowx/MesoPy) package to an xarray Dataset
+
 ## noaa.py
 `import noaa`
 
