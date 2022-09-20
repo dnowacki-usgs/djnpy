@@ -7,15 +7,15 @@ def mesowest_to_xarray(data):
     ds = xr.Dataset()
     ds["time"] = pd.to_datetime(data["STATION"][0]["OBSERVATIONS"]["date_time"])
     ds["time"] = pd.DatetimeIndex(ds["time"].values, tz=None)
-    for k, suffix in zip(
-        ["pressure", "wind_speed", "wind_direction", "wind_gust"],
-        ["_set_1d", "_set_1", "_set_1", "_set_1"],
-    ):
-        ds[k] = xr.DataArray(
-            np.array(data["STATION"][0]["OBSERVATIONS"][k + suffix]).astype(float),
+    for k in data["STATION"][0]["OBSERVATIONS"].keys():
+        if k == "date_time":
+            continue
+        var = k.split("_set_")
+        ds[var[0]] = xr.DataArray(
+            np.array(data["STATION"][0]["OBSERVATIONS"][k]).astype(float),
             dims="time",
         )
-        ds[k].attrs["units"] = data["UNITS"][k]
+        ds[var[0]].attrs["units"] = data["UNITS"][var[0]]
     for k in [
         "STATUS",
         "MNET_ID",
