@@ -22,6 +22,7 @@ Useful little tidbits:
 * `set_fontsize()` set fontsize of all elements of a figure, like `djn.set_fontsize(plt.gcf(), 14)`
 * `getcols()` return default color order for matplotlib plots
 * `nextcolor()` return the next color in the default matplotlib color order
+* `splabel()` plot a subplot letter label like "(a)" in figures
 * `siegel()` compute robust regression using repeated medians, following Siegel (1982). From Vlad Niculae.
 * `princax()` compute principal axis, rotation axis, and principal ellipse for velocity data. From Rich Signell.
 * `rot_earth()` rotate vectors u, v by given number of degrees using earthwise coordinates (0=N, 90=E)

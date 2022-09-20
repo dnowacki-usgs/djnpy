@@ -177,6 +177,18 @@ def get_coops_data(
         for k in payload["metadata"]:
             ds.attrs[k] = payload["metadata"][k]
 
+    products = [
+        "water_level",
+        "hourly_height",
+        "high_low",
+        "daily_mean",
+        "monthly_mean",
+        "one_minute_water_level",
+        "predictions",
+    ]
+    if product in products:
+        ds.attrs["datum"] = datum
+
     ds["time"] = pd.DatetimeIndex(ds["time"].values)
     ds["time"] = pd.DatetimeIndex(
         ds["time"].values

@@ -22,7 +22,7 @@ def uv2sd(u, v):
     # print(spds)
     # print(dirs)
 
-    spds = np.sqrt(u ** 2 + v ** 2)
+    spds = np.sqrt(u**2 + v**2)
     dirs = np.rad2deg(np.arctan(u / v))
     dirs[np.logical_and(u == 0, v > 0)] = 0
     # dirs[np.logical_and(u > 0, v > 0)] = np.rad2deg(np.arctan(u[np.logical_and(u > 0, v > 0)] / v[np.logical_and(u > 0, v > 0)]))
@@ -134,6 +134,20 @@ def nextcolor(n=1):
     """
     for x in range(n):
         next(plt.gca()._get_lines.prop_cycler)["color"]
+
+
+def splabel(letter, xfrac=0.02, yfrac=0.98):
+    """
+    Plot a subplot letter label like "(a)" in figures
+    """
+    xlims = plt.xlim()
+    ylims = plt.ylim()
+    plt.text(
+        xlims[0] + xfrac * np.diff(xlims),
+        ylims[0] + yfrac * np.diff(ylims),
+        letter,
+        va="top",
+    )
 
 
 def siegel(x, y):
