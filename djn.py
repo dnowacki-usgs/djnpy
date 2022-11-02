@@ -448,3 +448,68 @@ def haversine(lon1, lat1, lon2, lat2):
 def argmaxn(arr, n):
     # find largest N values from array
     return np.argpartition(arr, -n)[-n:]
+
+
+def scalebar(
+    ax,
+    xpct=0.5,
+    ypct=0.5,
+    length=1,
+    units="km",
+    fontsize=14,
+    color="black",
+    crs=None,
+    barheight=None,
+    **kwargs,
+):
+    """add scalebar to cartopy figure"""
+    lims = ax.get_extent(crs=crs)
+
+    barx = (lims[1] - lims[0]) * xpct + lims[0]
+    bary = (lims[3] - lims[2]) * ypct + lims[2]
+
+    if units == "m":
+        length = length / 1000
+        txtlength = length * 1000
+    else:
+        txtlength = length
+
+    barwidth = length * 1000
+    if not barheight:
+        barheight = length * 1000 * 0.08
+
+    txtx = barx
+    txty = bary + barheight
+
+    ax.fill(
+        [
+            barx - barwidth / 2,
+            barx + barwidth / 2,
+            barx + barwidth / 2,
+            barx - barwidth / 2,
+            barx - barwidth / 2,
+        ],
+        [
+            bary + barheight / 2,
+            bary + barheight / 2,
+            bary - barheight / 2,
+            bary - barheight / 2,
+            bary + barheight / 2,
+        ],
+        facecolor="w",
+        edgecolor="k",
+        transform=crs,
+        zorder=12,
+        **kwargs,
+    )
+    ax.text(
+        txtx,
+        txty,
+        f"{txtlength:.0f} {units}",
+        ha="center",
+        va="bottom",
+        fontsize=fontsize,
+        color=color,
+        transform=crs,
+        zorder=12,
+    )
