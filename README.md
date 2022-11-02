@@ -31,6 +31,8 @@ Useful little tidbits:
 * `xcorr()` cross-correlate data
 * `haversine()` calculate the great circle distance in kilometers between two points on the earth (specified in decimal degrees)
 * `argmaxn()` return largest N values from array
+* `math2geo()` convert from math notation to geographic coordinates (degrees)
+* `scalebar()` add scalebar to cartopy figure
 
 ## matlabtools.py
 `import matlabtools`
@@ -55,7 +57,7 @@ Functions to interact with `.mat` files created by MATLAB. Some functions based 
 ## nwis.py
 `import nwis`
 
-* `nwis_json()` Obtain USGS NWIS data (like water level, discharge, meteorological data, etc) via JSON and return it as a Pandas DataFrame
+* `nwis_json()` Obtain USGS NWIS data (like water level, discharge, meteorological data, etc) via JSON and return it as a Pandas DataFrame or xarray Datasaet
 
 ## wavenumber.py
 `import wavenumber`
