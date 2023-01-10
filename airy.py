@@ -2,8 +2,10 @@
 # Dropbox/matlab/+airy
 
 from __future__ import division
-import wavenumber as wn
+
 import numpy as np
+
+import wavenumber as wn
 
 
 def celerity(omega, d):
@@ -25,7 +27,7 @@ def energydens(a, rho=1025, g=9.81):
     a: wave amplitude
     """
 
-    return 0.5 * rho * g * a ** 2
+    return 0.5 * rho * g * a**2
 
 
 def groupvel(omega, d):
@@ -41,3 +43,15 @@ def groupvel(omega, d):
     # From Paul & Amos 2011 eq 9 (and elsewhere, obviously)
     # also repeated in Lowe et al 2005 eq 5
     return 0.5 * (1 + 2 * k * d / np.sinh(2 * k * d)) * omega / k
+
+
+def uorb(H, omega, d):
+    """
+    compute bottom orbital velocity
+    H: wave height
+    omega: 2*pi/T
+    d: still water depth
+    returns ub
+    """
+    k = wn.qkfs(omega, d)
+    return omega * H / 2 / np.sinh(k * d)
