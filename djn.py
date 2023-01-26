@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function, division
+from __future__ import division, print_function
+
 import matplotlib.pyplot as plt
 import numpy as np
-from plotly import offline as py
 import plotly.tools as tls
 import scipy
-import scipy.stats
 import scipy.signal
+import scipy.stats
 import xarray as xr
+from plotly import offline as py
 
 
 def uv2sd(u, v):
@@ -148,6 +149,22 @@ def splabel(letter, xfrac=0.02, yfrac=0.98):
         letter,
         va="top",
     )
+
+
+def mae(model, data):
+    return np.mean(np.abs(model - data))
+
+
+def mse(model, data):
+    return np.mean((model - data) ** 2)
+
+
+def rmse(model, data):
+    return np.sqrt(mse(model, data))
+
+
+def mape(model, data):
+    return 100 * np.mean(np.abs((model - data) / data))
 
 
 def siegel(x, y):
