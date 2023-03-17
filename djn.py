@@ -276,11 +276,15 @@ def princax(w):
     return theta, majo, mini, wr, degrees
 
 
-def math2geo(theta):
-    """
-    Convert from math notation to geographic coordinates (degrees)
-    """
-    return (450 - theta) % 360
+def math2geo(degrees):
+    """Convert from math notation to geographic (earth) coordinates (degrees)"""
+    return (450 - degrees) % 360
+
+
+def geo2math(degrees):
+    """Convert from geographic (earth) notation to math coordinates (degrees)"""
+    # it's the same equation
+    return math2geo(degrees)
 
 
 def rot_earth(u, v, degrees):

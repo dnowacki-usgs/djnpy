@@ -31,7 +31,7 @@ Useful little tidbits:
 * `xcorr()` cross-correlate data
 * `haversine()` calculate the great circle distance in kilometers between two points on the earth (specified in decimal degrees)
 * `argmaxn()` return largest N values from array
-* `math2geo()` convert from math notation to geographic coordinates (degrees)
+* `math2geo()`, `geo2math()` convert from math notation to geographic coordinates (degrees) and vice-versa
 * `scalebar()` add scalebar to cartopy figure
 
 ## matlabtools.py
