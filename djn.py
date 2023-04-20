@@ -14,8 +14,8 @@ from plotly import offline as py
 def uv2sd(u, v):
     """Convert east, north components to speed and direction"""
 
-    u = np.asarray(u)
-    v = np.asarray(v)
+    u = np.atleast_1d(u)
+    v = np.atleast_1d(v)
 
     spds = np.full_like(u, np.nan)
     # dirs = np.full_like(u.values, np.nan)
