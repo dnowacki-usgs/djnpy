@@ -1,6 +1,6 @@
-import xarray as xr
-import pandas as pd
 import numpy as np
+import pandas as pd
+import xarray as xr
 
 
 def mesowest_to_xarray(data):
@@ -11,10 +11,16 @@ def mesowest_to_xarray(data):
         if k == "date_time":
             continue
         var = k.split("_set_")
-        ds[var[0]] = xr.DataArray(
-            np.array(data["STATION"][0]["OBSERVATIONS"][k]).astype(float),
-            dims="time",
-        )
+        try:
+            ds[var[0]] = xr.DataArray(
+                np.array(data["STATION"][0]["OBSERVATIONS"][k]).astype(float),
+                dims="time",
+            )
+        except ValueError:  # for variables which can't be converted to float
+            ds[var[0]] = xr.DataArray(
+                np.array(data["STATION"][0]["OBSERVATIONS"][k]),
+                dims="time",
+            )
         ds[var[0]].attrs["units"] = data["UNITS"][var[0]]
     for k in [
         "STATUS",
