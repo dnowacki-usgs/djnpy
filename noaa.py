@@ -1,11 +1,11 @@
-import requests
+import urllib
+
 import numpy as np
-import datetime as dt
 import pandas as pd
 import pytz
+import requests
 import xarray as xr
 from dateutil import parser
-import urllib
 
 
 def get_coops_data(
@@ -85,11 +85,13 @@ def get_coops_data(
     wind = {"s": [], "d": [], "dr": [], "g": [], "f": []}
     cp = {"Speed": [], "Bin": [], "Direction": [], "Depth": []}
     cur = {"s": [], "d": [], "b": []}
-    if (
-        product == "water_level"
-        or product == "hourly_height"
-        or product == "air_pressure"
-    ):
+    if product in [
+        "water_level",
+        "hourly_height",
+        "air_pressure",
+        "air_temperature",
+        "water_temperature",
+    ]:
         d = payload["data"]
     elif product == "monthly_mean":
         d = payload["data"]
