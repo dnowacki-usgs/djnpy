@@ -501,9 +501,11 @@ def scalebar(
     color="black",
     crs=None,
     barheight=None,
+    edgecolor="k",
+    facecolor="w",
     **kwargs,
 ):
-    """add scalebar to cartopy figure"""
+    """Add scalebar to cartopy figure"""
     lims = ax.get_extent(crs=crs)
 
     barx = (lims[1] - lims[0]) * xpct + lims[0]
@@ -537,8 +539,8 @@ def scalebar(
             bary - barheight / 2,
             bary + barheight / 2,
         ],
-        facecolor="w",
-        edgecolor="k",
+        facecolor=facecolor,
+        edgecolor=edgecolor,
         transform=crs,
         zorder=12,
         **kwargs,
