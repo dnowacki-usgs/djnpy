@@ -224,6 +224,29 @@ def siegel(x, y):
 
 def princax(w):
     """
+    Parameters
+    ----------
+    w : array_like
+        complex vector time series (u + 1j*v)
+
+    Returns
+    -------
+    theta : float
+        angle of maximum variance, math notation (east == 0, north=90)
+    majo : float
+        major axis of principal ellipse
+    mini : float
+        minor axis of principal ellipse
+    wr : array_like
+        rotated time series, where real(wr) is aligned with the major axis.
+    degrees : float
+        degrees of the major axis in geographic coordinates
+
+    D. Nowacki (dnowacki@usgs.gov)
+    Adapted from Matlab code originally by Rich Signell
+    Original documentation reproduced below:
+
+
      PRINCAX Principal axis, rotation angle, principal ellipse
 
        [theta,maj,min,wr]=princax(w)
@@ -294,7 +317,6 @@ def rot_earth(u, v, degrees):
     - Positive degrees results in a counterclockwise (CCW) rotation
     - Negative degrees rotates values clockwise
     """
-
     up = np.cos(np.deg2rad(degrees)) * u - np.sin(np.deg2rad(degrees)) * v
     vp = np.sin(np.deg2rad(degrees)) * u + np.cos(np.deg2rad(degrees)) * v
     return up, vp
@@ -429,6 +451,7 @@ def xcorr(x, y):
 
 
 def get_smear(x, y, slope, intercept):
+    """Compute Duan's (1983) smearing estimate."""
     # ei = np.log(sscvals) - (lr.slope*np.log(Turbvals) + lr.intercept)
     # smear = np.mean(np.exp(ei))
     ei = np.log(y) - (slope * np.log(x) + intercept)
@@ -436,7 +459,7 @@ def get_smear(x, y, slope, intercept):
 
 
 def log_fit_smear(x, y):
-    """compute log fit with Duan's smearing estimate"""
+    """Compute log fit with Duan's smearing estimate."""
     goods = np.isfinite(x) & np.isfinite(y)
     lr = scipy.stats.linregress(np.log(x[goods]), np.log(y[goods]))
     smear = get_smear(x[goods], y[goods], lr.slope, lr.intercept)
@@ -450,10 +473,7 @@ def make_log_smear_fit(xs, lr, smear):
 
 def haversine(lon1, lat1, lon2, lat2):
     # https://stackoverflow.com/a/4913653
-    """
-    Calculate the great circle distance in kilometers between two points
-    on the earth (specified in decimal degrees)
-    """
+    """Calculate the great circle distance in kilometers between two points on the earth (specified in decimal degrees)"""
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
 
@@ -467,7 +487,7 @@ def haversine(lon1, lat1, lon2, lat2):
 
 
 def argmaxn(arr, n):
-    # find largest N values from array
+    """Find largest N values from array"""
     return np.argpartition(arr, -n)[-n:]
 
 
