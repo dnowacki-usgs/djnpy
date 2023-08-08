@@ -481,6 +481,8 @@ def scalebar(
     color="black",
     crs=None,
     barheight=None,
+    facecolor="w",
+    edgecolor="k",
     **kwargs,
 ):
     """add scalebar to cartopy figure"""
@@ -517,8 +519,8 @@ def scalebar(
             bary - barheight / 2,
             bary + barheight / 2,
         ],
-        facecolor="w",
-        edgecolor="k",
+        facecolor=facecolor,
+        edgecolor=edgecolor,
         transform=crs,
         zorder=12,
         **kwargs,
