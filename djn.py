@@ -67,10 +67,10 @@ def twinboxoff(ax=plt.gca()):
     ax.spines["top"].set_visible(False)
 
 
-def thinspines(lw=0.5):
+def thinspines(lw=0.5, ax=plt.gca()):
     for axis in ["top", "bottom", "left", "right"]:
-        plt.gca().spines[axis].set_linewidth(lw)
-        plt.gca().tick_params(width=lw)
+        ax.spines[axis].set_linewidth(lw)
+        ax.tick_params(width=lw)
 
 
 def find_nearest(array, value):
