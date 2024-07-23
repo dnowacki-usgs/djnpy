@@ -137,7 +137,7 @@ def nextcolor(n=1):
         next(plt.gca()._get_lines.prop_cycler)["color"]
 
 
-def splabel(letter, xfrac=0.02, yfrac=0.98):
+def splabel(letter, xfrac=0.02, yfrac=0.98, **kwargs):
     """
     Plot a subplot letter label like "(a)" in figures
     """
@@ -148,6 +148,7 @@ def splabel(letter, xfrac=0.02, yfrac=0.98):
         ylims[0] + yfrac * np.diff(ylims),
         letter,
         va="top",
+        **kwargs,
     )
 
 
