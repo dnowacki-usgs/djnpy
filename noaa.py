@@ -214,6 +214,33 @@ def get_long_coops_data(
     Get NOAA CO-OPS data for longer than 1 month.
     This function makes recursive calls to get_coops_data() for time ranges
     longer than one month.
+
+    units can be 'english' or 'metric'
+
+    start_date and end_date must be formatted like:
+    yyyyMMdd, yyyyMMdd HH:mm, MM/dd/yyyy, or MM/dd/yyyy HH:mm
+
+    product options include 'water_level', 'hourly_height', 'predictions'
+    from https://tidesandcurrents.noaa.gov/api/
+    Option              Description
+    water_level         Preliminary or verified water levels, depending on availability.
+    air_temperature     Air temperature as measured at the station.
+    water_temperature   Water temperature as measured at the station.
+    wind                Wind speed, direction, and gusts as measured at the station.
+    air_pressure        Barometric pressure as measured at the station.
+    air_gap             Air Gap (distance between a bridge and the water's surface) at the station.
+    conductivity        The water's conductivity as measured at the station.
+    visibility          Visibility from the station's visibility sensor. A measure of atmospheric clarity.
+    humidity            Relative humidity as measured at the station.
+    salinity            Salinity and specific gravity data for the station.
+    hourly_height       Verified hourly height water level data for the station.
+    high_low            Verified high/low water level data for the station.
+    daily_mean          Verified daily mean water level data for the station.
+    monthly_mean        Verified monthly mean water level data for the station.
+    one_minute_water_level  One minute water level data for the station.
+    predictions         6 minute predictions water level data for the station.
+    datums              datums data for the stations.
+    currents            Currents data for currents stations.
     """
 
     # date ranges in 1-month chunks
