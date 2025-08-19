@@ -6,7 +6,7 @@ import pytz
 import requests
 import xarray as xr
 from dateutil import parser
-
+import time
 
 def get_coops_data(
     station,
@@ -294,3 +294,114 @@ def get_coops_metadata(station):
     payload = requests.get(url).json()
 
     return payload
+
+
+def get_isd(site, years):
+    """
+    Retrieve NOAA Integrated Surface Data (ISD) from NOAA NCEI
+
+    Formatting from https://www.ncei.noaa.gov/data/global-hourly/doc/isd-format-document.pdf
+    INTEGRATED SURFACE DATASET (search online for this)
+    https://www.ncei.noaa.gov/access/search/data-search/global-hourly
+    """
+
+    # ensure list
+    years = [years] if isinstance(years, (str, int)) else years
+
+    tmp = []
+    for year in years:
+        print(year)
+        tmp.append(
+            pd.read_csv(
+                f"https://www.ncei.noaa.gov/data/global-hourly/access/{year}/{site}.csv",
+                low_memory=False,
+            )
+        )
+        time.sleep(2)
+    df = pd.concat(tmp, ignore_index=True)
+
+    dfnew = pd.DataFrame()
+    dfnew["time"] = pd.DatetimeIndex(df["DATE"])
+    dfnew[
+        ["wind_direction", "wind_directionq", "wtype", "wind_speed", "wind_speedq"]
+    ] = df["WND"].str.split(",", expand=True)
+    dfnew[["air_temp", "air_tempq"]] = df["TMP"].str.split(",", expand=True)
+    dfnew[["dew_point", "dew_pointq"]] = df["DEW"].str.split(",", expand=True)
+    dfnew[["lprecip_period", "lprecip_depth", "lprecip_cond", "lprecipq"]] = df[
+        "AA1"
+    ].str.split(",", expand=True)
+    if "AT1" in df:
+        dfnew[["dpwo_source", "dpwo_type", "dpwo_abbrev", "dpwoq"]] = df[
+            "AT1"
+        ].str.split(",", expand=True)
+    dfnew[["sea_level_pressure", "sea_level_pressureq"]] = df["SLP"].str.split(
+        ",", expand=True
+    )
+    dfnew[["XXXX", "XXXX", "atmospheric_pressure", "atmospheric_pressureq"]] = df[
+        "MA1"
+    ].str.split(",", expand=True)
+    dfnew.drop(columns="XXXX", inplace=True)
+
+    dfnew.set_index("time", inplace=True)
+    for v in dfnew:
+        try:
+            dfnew[v] = pd.to_numeric(dfnew[v])
+        except ValueError as e:
+            print("could not make numeric", v, e)
+            dfnew[v] = dfnew[v].str.strip()
+            continue
+
+    for v in ["lprecip_cond"]:
+        dfnew.loc[dfnew[v] == 9, v] = np.nan
+
+    for v in ["lprecip_period"]:
+        dfnew.loc[dfnew[v] == 99, v] = np.nan
+
+    for v in ["wind_direction"]:
+        dfnew.loc[dfnew[v] == 999, v] = np.nan
+
+    for v in ["wind_speed", "air_temp", "dew_point", "lprecip_depth"]:
+        dfnew.loc[dfnew[v] == 9999, v] = np.nan
+        dfnew[v] = dfnew[v] / 10
+
+    for v in ["sea_level_pressure", "atmospheric_pressure"]:
+        dfnew.loc[dfnew[v] == 99999, v] = np.nan
+        dfnew[v] = dfnew[v] / 10
+
+    ds = dfnew.to_xarray()
+
+    units = {
+        "wind_speed": "m s-1",
+        "air_temp": "degree_C",
+        "sea_level_pressure": "millibar",
+        "atmospheric_pressure": "millibar",
+        "dew_point": "degree_C",
+    }
+    for k in units:
+        ds[k].attrs["units"] = units[k]
+
+    for v in [
+        "STATION",
+        "SOURCE",
+        "LATITUDE",
+        "LONGITUDE",
+        "ELEVATION",
+        "NAME",
+        "REPORT_TYPE",
+        "CALL_SIGN",
+        "QUALITY_CONTROL",
+    ]:
+        if df[v].eq(df[v][0]).all():
+            ds.attrs[v.lower()] = df[v][
+                0
+            ]  # NAME is a reserved netCDF4 attr, so make them all lowercase:  https://github.com/Unidata/netcdf4-python/issues/1020
+            print(v, "all equal")
+        else:
+            print(v, "not all equal")
+            ds[v] = xr.DataArray(df[v], dims="time")
+            # df[v] = df[v].str.strip()
+            print(f"  unique values for {v} are", df[v].unique())
+
+    ds = ds.drop_duplicates(dim="time")
+
+    return ds
