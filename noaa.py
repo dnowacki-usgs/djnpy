@@ -1,3 +1,4 @@
+import time
 import urllib
 
 import numpy as np
@@ -6,7 +7,8 @@ import pytz
 import requests
 import xarray as xr
 from dateutil import parser
-import time
+from requests.adapters import HTTPAdapter, Retry
+
 
 def get_coops_data(
     station,
@@ -75,7 +77,13 @@ def get_coops_data(
     if product == "currents_predictions":
         url = f"{url}&vel_type=speed_dir"
 
-    payload = requests.get(url).json()
+    s = requests.Session()
+
+    retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+
+    s.mount("https://", HTTPAdapter(max_retries=retries))
+
+    payload = s.get(url, timeout=10).json()
 
     if "error" in payload.keys():
         raise ValueError("Error in returning dataset: " + payload["error"]["message"])
