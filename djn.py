@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.tools as tls
+
 import scipy
 import scipy.signal
 import scipy.stats
 import xarray as xr
-from plotly import offline as py
 
 
 def uv2sd(u, v):
@@ -88,14 +87,6 @@ def middles(edges):
     edgeend = edges[-1] - diffs / 2.0
 
     return np.linspace(edgestart, edgeend, len(edges) - 1)
-
-
-def show():
-    """
-    Easy way to make an mpl plot into a plotly plot.
-    Call djn.show() instead of plt.show()
-    """
-    py.iplot(tls.mpl_to_plotly(plt.gcf()))
 
 
 def set_fontsize(fig, fontsize):
