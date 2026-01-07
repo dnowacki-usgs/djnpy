@@ -132,14 +132,11 @@ def get_coops_data(
                 else:
                     try:
                         wind[k].append(float(d[n][k]))
-                    except:
+                    except ValueError:
                         wind[k].append(np.nan)
         elif product == "monthly_mean":
             for k in monthly.keys():
-                try:
-                    monthly[k].append(float(d[n][k]))
-                except:
-                    monthly[k].append(np.nan)
+                monthly[k].append(float(d[n][k]))
         elif product == "currents_predictions":
             for k in cp:
                 cp[k].append(float(d[n][k]))
@@ -147,10 +144,7 @@ def get_coops_data(
             for k in cur:
                 cur[k].append(float(d[n][k]))
         else:
-            try:
-                v.append(float(d[n]["v"]))
-            except:
-                v.append(np.nan)
+            v.append(float(d[n]["v"]))
 
     ds = xr.Dataset()
 
@@ -345,10 +339,11 @@ def get_isd(site, years):
     dfnew[["sea_level_pressure", "sea_level_pressureq"]] = df["SLP"].str.split(
         ",", expand=True
     )
-    dfnew[["XXXX", "XXXX", "atmospheric_pressure", "atmospheric_pressureq"]] = df[
-        "MA1"
-    ].str.split(",", expand=True)
-    dfnew.drop(columns="XXXX", inplace=True)
+    if "MA1" in df:
+        dfnew[["XXXX", "XXXX", "atmospheric_pressure", "atmospheric_pressureq"]] = df[
+            "MA1"
+        ].str.split(",", expand=True)
+        dfnew.drop(columns="XXXX", inplace=True)
 
     dfnew.set_index("time", inplace=True)
     for v in dfnew:
@@ -373,8 +368,9 @@ def get_isd(site, years):
         dfnew[v] = dfnew[v] / 10
 
     for v in ["sea_level_pressure", "atmospheric_pressure"]:
-        dfnew.loc[dfnew[v] == 99999, v] = np.nan
-        dfnew[v] = dfnew[v] / 10
+        if v in dfnew:
+            dfnew.loc[dfnew[v] == 99999, v] = np.nan
+            dfnew[v] = dfnew[v] / 10
 
     ds = dfnew.to_xarray()
 
@@ -386,7 +382,8 @@ def get_isd(site, years):
         "dew_point": "degree_C",
     }
     for k in units:
-        ds[k].attrs["units"] = units[k]
+        if k in ds:
+            ds[k].attrs["units"] = units[k]
 
     for v in [
         "STATION",
