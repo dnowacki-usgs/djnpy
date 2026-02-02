@@ -403,7 +403,7 @@ def get_isd(site, years):
             print(v, "all equal")
         else:
             print(v, "not all equal")
-            ds[v] = xr.DataArray(df[v], dims="time")
+            # ds[v] = xr.DataArray(df[v], dims="time")
             # df[v] = df[v].str.strip()
             print(f"  unique values for {v} are", df[v].unique())
 
