@@ -102,6 +102,9 @@ def set_fontsize(fig, fontsize):
 
 
 def label_outer():
+    """
+    Only keep tick values and labels for outermost subplots
+    """
     for ax in plt.gcf().axes:
         ax.label_outer()
 
