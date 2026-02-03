@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
 import scipy
 import scipy.signal
 import scipy.stats
@@ -104,10 +103,7 @@ def set_fontsize(fig, fontsize):
 
 def label_outer():
     for ax in plt.gcf().axes:
-        try:
-            ax.label_outer()
-        except:
-            pass
+        ax.label_outer()
 
 
 def getcols():
@@ -430,6 +426,20 @@ def xcorr(x, y):
     i.e., a positive lag means the first series lags the second, or the second
     leads the first--peaks earlier in time, so at a location to the left on
     the time series plot.
+
+    Parameters
+    ----------
+    x
+        first input series
+    y
+        second input series
+
+    Returns
+    -------
+    lags
+        Lags
+    ccor
+        Cross-correlations corresponding to each lag
     """
     if len(x) != len(y):
         raise ValueError("Error!: len(x) != len(y)")
