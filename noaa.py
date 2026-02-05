@@ -144,7 +144,10 @@ def get_coops_data(
             for k in cur:
                 cur[k].append(float(d[n][k]))
         else:
-            v.append(float(d[n]["v"]))
+            if d[n]["v"] == "":
+                v.append(np.nan)
+            else:
+                v.append(float(d[n]["v"]))
 
     ds = xr.Dataset()
 
