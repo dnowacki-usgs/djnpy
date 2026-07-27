@@ -45,24 +45,30 @@ def sd2uv(s, d):
     return u, v
 
 
-def boxoff(ax=plt.gca()):
+def boxoff(ax=None):
     """
     A Matlab-like boxoff to remove top & right border of plots
     """
+    if ax is None:
+        ax = plt.gca()
     ax.yaxis.set_ticks_position("left")
     ax.xaxis.set_ticks_position("bottom")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
 
-def twinboxoff(ax=plt.gca()):
+def twinboxoff(ax=None):
     """
     A Matlab-like boxoff for twinx plots
     """
+    if ax is None:
+        ax = plt.gca()
     ax.spines["top"].set_visible(False)
 
 
-def thinspines(lw=0.5, ax=plt.gca()):
+def thinspines(lw=0.5, ax=None):
+    if ax is None:
+        ax = plt.gca()
     for axis in ["top", "bottom", "left", "right"]:
         ax.spines[axis].set_linewidth(lw)
         ax.tick_params(width=lw)
@@ -312,7 +318,19 @@ def rot_earth(u, v, degrees):
 
 def tidalfilt(inmat, fs, cutoff=48.0, btype="low"):
     """
-    Low-pass filter data using a 5th order Butterworth filter
+    Filter data using a 5th order Butterworth filter
+    Default low-pass filter
+
+    Parameters
+    ----------
+    inmat
+        Input array
+    fs
+        Sampling frequency
+    cutoff
+        Cutoff, in same units as sampling frequency (default 48 [h])
+    btype
+        Default "low"
     """
 
     # fs in samples per hour
