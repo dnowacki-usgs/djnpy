@@ -85,7 +85,7 @@ def get_coops_data(
 
     payload = s.get(url, timeout=10).json()
 
-    if "error" in payload.keys():
+    if "error" in payload:
         raise ValueError("Error in returning dataset: " + payload["error"]["message"])
 
     t = []
@@ -103,7 +103,7 @@ def get_coops_data(
         d = payload["data"]
     elif product == "monthly_mean":
         d = payload["data"]
-        monthly = {x: [] for x in d[0].keys() if x != "month" and x != "year"}
+        monthly = {x: [] for x in d[0] if x != "month" and x != "year"}
     elif product == "predictions":
         d = payload["predictions"]
     elif product == "wind":
@@ -135,13 +135,13 @@ def get_coops_data(
                     except ValueError:
                         wind[k].append(np.nan)
         elif product == "monthly_mean":
-            for k in monthly.keys():
+            for k in monthly:  # noqa: PLC0206
                 monthly[k].append(float(d[n][k]))
         elif product == "currents_predictions":
-            for k in cp:
+            for k in cp:  # noqa: PLC0206
                 cp[k].append(float(d[n][k]))
         elif product == "currents":
-            for k in cur:
+            for k in cur:  # noqa: PLC0206
                 cur[k].append(float(d[n][k]))
         else:
             if d[n]["v"] == "":
@@ -157,15 +157,15 @@ def get_coops_data(
         for k in ["s", "d", "dr", "g", "f"]:
             n[k] = np.array(wind[k])
     elif product == "monthly_mean":
-        for k in monthly.keys():
+        for k in monthly:  # noqa: PLC0206
             n[k] = np.array(monthly[k])
     elif product == "currents_predictions":
-        for k in cp:
+        for k in cp:  # noqa: PLC0206
             n[k] = np.array(cp[k])
         if "units" in payload["current_predictions"]:
             ds.attrs["units"] = payload["current_predictions"]["units"]
     elif product == "currents":
-        for k in cur:
+        for k in cur:  # noqa: PLC0206
             n[k] = np.array(cur[k])
     else:
         n["v"] = np.array(v)
@@ -175,10 +175,14 @@ def get_coops_data(
 
     if product == "currents":
         # also get metadata for bins
-        bins = requests.get(
-            f"https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations/{station}/bins.json"
+        bins = s.get(
+            f"https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations/{station}/bins.json",
+            timeout=10,
         ).json()
         ds["depth"] = bins["bins"][bin - 1]["depth"]
+        for x in bins:
+            if x != "bins":
+                ds.attrs[x] = bins[x]
 
     if "metadata" in payload:
         for k in payload["metadata"]:
@@ -275,7 +279,7 @@ def get_long_coops_data(
         except ValueError as e:
             # sometimes a station goes offline
             if "No data was found" in repr(e):
-                print("no data in {} - {}; skipping".format(dates[n], dates[n + 1]))
+                print(f"no data in {dates[n]} - {dates[n + 1]}; skipping")
                 continue
             else:
                 print(e)
@@ -384,7 +388,7 @@ def get_isd(site, years):
         "atmospheric_pressure": "millibar",
         "dew_point": "degree_C",
     }
-    for k in units:
+    for k in units:  # noqa: PLC0206
         if k in ds:
             ds[k].attrs["units"] = units[k]
 
